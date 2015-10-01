@@ -14,11 +14,11 @@ import Arduino
 class MainGui(QWidget):
     def __init__(self):
         super(MainGui, self).__init__()
-        self.ard = Arduino.Arduino()
+        #self.ard = Arduino.Arduino()
         self.createLayout()
         
     def createLayout(self):
-        print 'Creating window'
+        print('Creating window')
         # Window setting
         self.mainLayout = QGridLayout()
         self.setLayout(self.mainLayout)

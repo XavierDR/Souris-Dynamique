@@ -14,7 +14,7 @@ class Arduino():
         self.ledState = False;
         
     def serialCom(self):
-        print 'In serial COM'
+        print('In serial COM')
         if self.ledState == False:
             self.ledState = True
             self.ser.write('a')
