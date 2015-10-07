@@ -1,0 +1,16 @@
+import json
+import gspread
+from oauth2client.client import SignedJwtAssertionCredentials
+
+json_key = json.load(open('SourisDynamique-f7e6654107a8.json'))
+scope = ['https://spreadsheets.google.com/feeds']
+
+credentials = SignedJwtAssertionCredentials(json_key['client_email'], bytes(json_key['private_key'], 'utf-8'), scope)
+
+gc = gspread.authorize(credentials)
+
+wks = gc.open("TestSouris").sheet1
+wks.update_acell('B2', "it's down there somewhere, let me take another look.")
+cell_list = wks.range('A1:B7')
+
+print(cell_list)
