@@ -10,7 +10,8 @@ credentials = SignedJwtAssertionCredentials(json_key['client_email'], bytes(json
 gc = gspread.authorize(credentials)
 
 wks = gc.open("TestSouris").sheet1
-wks.update_acell('B2', "it's down there somewhere, let me take another look.")
+wks.update_acell('B1', "Ajout via python en direct?")
 cell_list = wks.range('A1:B7')
 
 print(cell_list)
+
