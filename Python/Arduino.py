@@ -10,14 +10,17 @@ import serial
 class Arduino():
     def __init__(self):
         
-        self.ser = serial.Serial('COM7', 9600)
-        self.ledState = False;
+        self.ser = serial.Serial('COM6', 9600)
+        self.isa = False;
         
     def serialCom(self):
         print('In serial COM')
-        if self.ledState == False:
-            self.ledState = True
-            self.ser.write('a')
-        elif self.ledState == True:
-            self.ledState = False
-            self.ser.write('b')
+        if self.isa == False:
+            self.isa = True
+            print(self.isa)
+            self.ser.write(b'a')
+            print('a')
+        elif self.isa == True:
+            self.isa = False
+            self.ser.write(b'b')
+            print('b')
