@@ -1,7 +1,6 @@
 import json
 import gspread
 from oauth2client.client import SignedJwtAssertionCredentials
-import time
 
 json_key = json.load(open('SourisDynamique-a348c1bc1c12.json'))
 scope = ['https://spreadsheets.google.com/feeds']
@@ -10,24 +9,9 @@ credentials = SignedJwtAssertionCredentials(json_key['client_email'], bytes(json
 
 gc = gspread.authorize(credentials)
 
-wks = gc.open("Souris")
+wks = gc.open("InterfaceSouris")
 
-wks = wks.worksheet("Entrainement")
+wks = wks.worksheet("Summary")
 
+print(wks.row_values(4))
 
-# wks.update_acell('A3', "Jacques")
-# wks.update_acell('B3', "81 00 00 00 00 00 00 00")
-# wks.update_acell('C3', 0)
-# wks.update_acell('D3', 0)
-# wks.update_acell('E3', "00:00:00")
-# wks.update_acell('F3', "N/A")
-# wks.update_acell('G3', 0)
-# wks.update_acell('H3', 0)
-
-print(wks.row_values(1))
-
-time1 = time.time()
-recherche = wks.find("REPONSE")
-print(recherche)
-time2 = time.time()
-print(time2-time1)
