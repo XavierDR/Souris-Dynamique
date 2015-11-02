@@ -12,7 +12,6 @@ credentials = SignedJwtAssertionCredentials(json_key['client_email'], bytes(json
 gc = gspread.authorize(credentials)
 
 wks = gc.open("InterfaceSouris")
-
 shtSum = wks.worksheet("Summary")
 shtHist = wks.worksheet("History")
 shtTrain = wks.worksheet("Trainings")
@@ -94,3 +93,7 @@ if touchSensLeft == 1 and touchSensRight == 1:
         updateCellList[2].value = newTraining[1]
 
         shtSum.update_cells(updateCellList)
+# TODO: Last training
+# TODO: Error management
+# TODO: By Alex: Use objects and or functions for worksheets
+# TODO: By Xavier: Try to add touch sensors to the program. Maybe look into packets?
