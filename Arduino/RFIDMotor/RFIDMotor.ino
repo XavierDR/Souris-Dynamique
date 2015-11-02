@@ -9,7 +9,8 @@ int incomingByte = 0;
 int Identification []= {0,0,0,0,0,0,0,0,0,0,0,0};
 int souris1 [] = {1,9,12,110,114,72,21,50,93,17,7,61};
 int souris2 [] = {1,9,13,0,0,0,0,0,0,0,0,4};
-int souris3 [] = {1,9,12,234,145,220,10,0,0,0,0,168};
+//int souris3 [] = {1,9,12,234,145,220,10,0,0,0,0,168};
+int souris3 [12];
 int i=0;
 
 
@@ -25,24 +26,42 @@ void setup() {
   digitalWrite(rev, LOW);
   digitalWrite(m0, LOW);  
   digitalWrite(m1, LOW);
+
+  delay(1000);
+  digitalWrite(13, HIGH);
+  delay(1000);
+  digitalWrite(13, LOW);
+  delay(1000);
+  digitalWrite(13, HIGH);
   
 
 }
 
 void loop() {
+  //addMouse(souris3);
   idMice();
 
-  msg = Serial.read();
-  
-  if (msg == 'a'){
-    digitalWrite(m0, LOW);  
-    digitalWrite(m1, LOW);
-    digitalWrite(13, LOW);
-  }
-  else if(msg =='b'){
-    digitalWrite(m0, HIGH);
-    digitalWrite(m1, LOW);
-    digitalWrite(13, HIGH);
+  if(Serial.available() > 0){
+    msg = Serial.read();
+    
+    if (msg == 'a'){
+      digitalWrite(m0, LOW);  
+      digitalWrite(m1, LOW);
+      digitalWrite(13, LOW);
+    }
+    else if(msg =='b'){
+      digitalWrite(m0, HIGH);
+      digitalWrite(m1, LOW);
+      digitalWrite(13, HIGH);
+    }
+    else if(msg == 'c'){
+      addMouse(souris3);
+      digitalWrite(13, HIGH);
+      delay(1000);
+      digitalWrite(13, LOW);
+      delay(1000);
+      digitalWrite(13, HIGH);
+    }
   }
 }
 
@@ -101,6 +120,8 @@ if (Serial1.available() > 0)
         }
         if(c==11)
         {
+          digitalWrite(m0, LOW);
+          digitalWrite(m1, HIGH);
           Serial.println("Souris 3");
         }
       }
@@ -115,3 +136,29 @@ if (Serial1.available() > 0)
     }
   }
 }
+
+void addMouse(int souris[12]){
+  while(souris[11] == 0){
+    incomingByte = Serial1.read();
+    Serial.println("Avant le if");
+    if (incomingByte==1)
+    {
+      souris[0]=1;
+      i=1;
+      while (souris[11]==0)
+      {
+        if (Serial1.available() > 0)
+        {
+          incomingByte = Serial1.read();
+          souris[i]=incomingByte;
+          i+=1;
+        }
+      }
+      for(int j = 0; j < 12; j++){
+        Serial.print(souris[j] + ",");
+      }
+      Serial.println("");
+    }
+  }
+}
+
