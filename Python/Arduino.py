@@ -19,8 +19,12 @@ class Arduino():
             self.isa = True
             print(self.isa)
             self.ser.write(b'a')
-            print('a')
+#            print('a')
         elif self.isa == True:
             self.isa = False
             self.ser.write(b'b')
-            print('b')
+#            print('b')
+            
+    def addMouse(self):
+        print('Adding new mouse...')
+        self.ser.write(b'c')
