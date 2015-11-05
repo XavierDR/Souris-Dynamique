@@ -1,7 +1,6 @@
 import json
 import gspread
 import datetime
-import time
 from oauth2client.client import SignedJwtAssertionCredentials
 
 json_key = json.load(open('SourisDynamique-a348c1bc1c12.json'))
