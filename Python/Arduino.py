@@ -28,3 +28,19 @@ class Arduino():
     def addMouse(self):
         print('Adding new mouse...')
         self.ser.write(b'c')
+        
+    def readPort(self):
+        print('In read port')
+        return self.ser.read(self,20)
+        
+    def writePort(self, packet):
+        self.ser.write(bytes(packet, 'utf8'))
+        print('After the write')
+        while True:
+            print('Before reading')
+            print(self.ser.read(1))
+            print('in the while')
+            if(message != ''):
+                print(message)
+            else: 
+                print('Not receiving')
