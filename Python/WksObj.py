@@ -22,8 +22,15 @@ class WksObj:
         self.cmInfo = ""            # Information for the current mouse (from worksheet Summary)
         self.trCell = ""            # Cell containing the current training
         self.trInfo = ""            # Information for the current training (from worksheet trainings)
+        self.trainingList = ""
+        self.trainingListRep = ""
 
-    def mouseOpen(self, jsonName, sheetName):
+    def spreadsheetOpen(self, jsonName, sheetName):
+        """
+        :param jsonName: Name of the Json file (for linking google sheets)
+        :param sheetName: Name of the spreadsheet
+        :return: none
+        """
         json_key = json.load(open(jsonName))
         scope = ['https://spreadsheets.google.com/feeds']
 
@@ -34,6 +41,34 @@ class WksObj:
         self.shtSum = wks.worksheet("Summary")
         self.shtHist = wks.worksheet("History")
         self.shtTrain = wks.worksheet("Trainings")
+        self.trainingList = self.shtTrain.col_values(1)
+        self.trainingListRep = self.shtTrain.col_values(2)
+
+    def addMouseGoogle(self, tagRFID, mouseName, age):
+        """ This function allows to add a new mouse to the Google Spread Sheet
+        :param tagRFID: RFID scanned. Info coming from Arduino
+        :param mouseName: Name of the new mouse, entered in the Python interface by user
+        :param age: Age of the new mouse, entered in the Python interface by user
+        :return: none
+        """
+
+        numberOfMice = int(self.shtSum.cell(1, 2).value)+1
+
+        cellRange = 'A' + str(numberOfMice + 3) + ':I' + str(numberOfMice + 3)
+        updateCellList = self.shtSum.range(cellRange)
+        updateCellList[0].value = mouseName
+        updateCellList[1].value = age
+        updateCellList[2].value = tagRFID
+        updateCellList[3].value = self.trainingList[1]
+        updateCellList[4].value = self.trainingListRep[1]
+        updateCellList[5].value = self.trainingListRep[1]
+        updateCellList[6].value = "00:00:00:00"
+        updateCellList[7].value = 0
+        updateCellList[8].value = 0
+        self.shtSum.update_cells(updateCellList)
+
+        self.shtHist.update_cell(1, numberOfMice*2-1, mouseName)
+
 
     def getMouseInfo(self, tagRFID):
         """ This allows to fetch mouse information from the Google Spreadsheet
