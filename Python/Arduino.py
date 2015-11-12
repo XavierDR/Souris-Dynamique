@@ -6,11 +6,12 @@ Created on Sun Sep 27 15:49:30 2015
 """
 
 import serial
+import PacketTest
 
 class Arduino():
     def __init__(self):
         
-        self.ser = serial.Serial('COM6', 9600)
+        self.ser = serial.Serial('COM6', 115200)
         self.isa = False;
         
     def serialCom(self):
@@ -27,7 +28,10 @@ class Arduino():
             
     def addMouse(self):
         print('Adding new mouse...')
-        self.ser.write(b'c')
+        self.writePort('c')
+        
+    def closeSerial(self):
+        self.ser.close()
         
     def readPort(self):
         print('In read port')
@@ -35,12 +39,12 @@ class Arduino():
         
     def writePort(self, packet):
         self.ser.write(bytes(packet, 'utf8'))
-        print('After the write')
         while True:
-            print('Before reading')
-            print(self.ser.read(1))
-            print('in the while')
-            if(message != ''):
+            message = self.ser.readline()[:-2]
+            message = str(message, 'utf-8')
+            if message:
                 print(message)
-            else: 
-                print('Not receiving')
+                return message
+            
+if __name__ == '__main__':
+    PacketTest.main()

@@ -6,12 +6,15 @@ int m1 = 52;
 
 // RFID variables
 int incomingByte = 0;
-int Identification []= {0,0,0,0,0,0,0,0,0,0,0,0};
+const int DEFAULT_SIZE = 12;
+int rfTag [] = {0,0,0,0,0,0,0,0,0,0,0,0};
 int souris1 [] = {1,9,12,110,114,72,21,50,93,17,7,61};
 int souris2 [] = {1,9,13,0,0,0,0,0,0,0,0,4};
 //int souris3 [] = {1,9,12,234,145,220,10,0,0,0,0,168};
 int souris3 [12];
 int i=0;
+
+//int mouse [][DEFAULT_SIZE];
 
 
 
@@ -26,19 +29,13 @@ void setup() {
   digitalWrite(rev, LOW);
   digitalWrite(m0, LOW);  
   digitalWrite(m1, LOW);
-
-  delay(1000);
-  digitalWrite(13, HIGH);
-  delay(1000);
-  digitalWrite(13, LOW);
-  delay(1000);
-  digitalWrite(13, HIGH);
   
 
 }
 
 void loop() {
   //addMouse(souris3);
+      
   idMice();
 
   if(Serial.available() > 0){
@@ -74,62 +71,25 @@ if (Serial1.available() > 0)
     incomingByte = Serial1.read();
     if (incomingByte==1)
     {
-      Identification[0]=1;
+      rfTag[0]=1;
       i=1;
-      while (Identification[11]==0)
+      while (rfTag[11]==0)
       {
         if (Serial1.available() > 0)
         {
           incomingByte = Serial1.read();
-          Identification[i]=incomingByte;
+          rfTag[i]=incomingByte;
           i=i+1;
         }
       }
-
-      for (int c=0; c < 12; c++)
-      {
-        if(Identification[c]!=souris1[c])
-        {
-          break;
-        }
-        if(c==11)
-        {
-          digitalWrite(m0, LOW);  
-          digitalWrite(m1, LOW);
-          Serial.println("Souris 1");
-        }
-      }
-      for (int c=0; c < 12; c++)
-      {
-        if(Identification[c]!=souris2[c])
-        {
-          break;
-        }
-        if(c==11)
-        {
-          digitalWrite(m0, HIGH);
-          digitalWrite(m1, LOW);
-          Serial.println("Souris 2");
-        }
-      }
-      for (int c=0; c < 12; c++)
-      {
-        if(Identification[c]!=souris3[c])
-        {
-          break;
-        }
-        if(c==11)
-        {
-          digitalWrite(m0, LOW);
-          digitalWrite(m1, HIGH);
-          Serial.println("Souris 3");
-        }
-      }
-
+      if(arrayCompare(rfTag, souris1, 12, 12)) Serial.println("Souris1!");
+      if(arrayCompare(rfTag, souris2, 12, 12)) Serial.println("Souris2!");
+      if(arrayCompare(rfTag, souris3, 12, 12)) Serial.println("Souris3!");
+      
       for (int b=0; b < 12; b++)
       {
-//        Serial.println(Identification[b]);
-        Identification[b]=0;
+//        Serial.println(rfTag[b]);
+        rfTag[b]=0;
       }
         
       i=0;
@@ -137,6 +97,8 @@ if (Serial1.available() > 0)
   }
 }
 
+// This function waits for and RFID tag to be scanned. It is made to add
+// a new mouse RFID tag to the array
 void addMouse(int souris[12]){
   while(souris[11] == 0){
     incomingByte = Serial1.read();
@@ -160,5 +122,22 @@ void addMouse(int souris[12]){
       Serial.println("");
     }
   }
+}
+
+// This function compares two arrays and returns true if
+// the arrays are equal
+boolean arrayCompare(int a[], int b[], int len_a, int len_b){
+     int n;
+
+     // if their lengths are different, return false
+     if (len_a != len_b) return false;
+
+     // test each element to be the same. if not, return false
+     for (n=0;n<len_a;n++) if (a[n]!=b[n]) {
+       return false;
+     }
+
+     //ok, if we have not returned yet, they are equal :)
+     return true;
 }
 

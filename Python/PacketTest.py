@@ -17,13 +17,17 @@ class MainGui(QWidget):
         self.ard = Arduino.Arduino()
         self.createLayout()
         
+    def closeEvent(self, evnt):
+        print('Closing serial port...')
+        self.ard.closeSerial()
+        
     def createLayout(self):
         print('Creating window')
         # Window setting
         self.mainLayout = QGridLayout()
         self.setLayout(self.mainLayout)
         
-        # Arduino LED button setting
+        # Arduino packet sending button
         self.packetBtn = QPushButton("Envoyer packet")
         self.packetBtn.move(50,50)
         self.packetBtn.clicked.connect(self.sendPacket)
