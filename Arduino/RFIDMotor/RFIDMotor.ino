@@ -10,7 +10,7 @@ const int DEFAULT_SIZE = 12;
 int rfTag [] = {0,0,0,0,0,0,0,0,0,0,0,0};
 int souris1 [] = {1,9,12,110,114,72,21,50,93,17,7,61};
 int souris2 [] = {1,9,13,0,0,0,0,0,0,0,0,4};
-//int souris3 [] = {1,9,12,234,145,220,10,0,0,0,0,168};
+int mouse [] = {0,0,0,0,0,0,0,0,0,0,0,0};
 int souris3 [12];
 int i=0;
 
@@ -26,6 +26,10 @@ void setup() {
   pinMode(rev,OUTPUT);  
   pinMode(m0, OUTPUT);
   pinMode(m1,OUTPUT);
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
+  delay(1000);
+  digitalWrite(13, LOW);
   digitalWrite(rev, LOW);
   digitalWrite(m0, LOW);  
   digitalWrite(m1, LOW);
@@ -34,12 +38,12 @@ void setup() {
 }
 
 void loop() {
-  //addMouse(souris3);
       
-  idMice();
+  //idMice();
 
   if(Serial.available() > 0){
     msg = Serial.read();
+    digitalWrite(13,HIGH);
     
     if (msg == 'a'){
       digitalWrite(m0, LOW);  
@@ -52,7 +56,8 @@ void loop() {
       digitalWrite(13, HIGH);
     }
     else if(msg == 'c'){
-      addMouse(souris3);
+      digitalWrite(13, HIGH);
+      addMouse();
       digitalWrite(13, HIGH);
       delay(1000);
       digitalWrite(13, LOW);
@@ -98,28 +103,33 @@ if (Serial1.available() > 0)
 }
 
 // This function waits for and RFID tag to be scanned. It is made to add
-// a new mouse RFID tag to the array
-void addMouse(int souris[12]){
-  while(souris[11] == 0){
+// a new mouse RFID tag by sending it to Python.
+void addMouse(){
+  while(mouse[11] == 0){
+    digitalWrite(13, HIGH);
     incomingByte = Serial1.read();
-    Serial.println("Avant le if");
     if (incomingByte==1)
     {
-      souris[0]=1;
+      mouse[0]=1;
       i=1;
-      while (souris[11]==0)
+      while (mouse[11]==0)
       {
         if (Serial1.available() > 0)
         {
           incomingByte = Serial1.read();
-          souris[i]=incomingByte;
+          mouse[i]=incomingByte;
           i+=1;
         }
       }
-      for(int j = 0; j < 12; j++){
-        Serial.print(souris[j] + ",");
-      }
-      Serial.println("");
+     // We now need to send the RFID value to Python.
+     // A conversion from int[] to char[] is needed
+     String str;
+     for (int i = 0; i < 12 ; i++){
+        str += String(mouse[i]) + ".";
+     }
+
+     str.remove(str.length()-1);
+     sendPacket(str);
     }
   }
 }
@@ -140,4 +150,11 @@ boolean arrayCompare(int a[], int b[], int len_a, int len_b){
      //ok, if we have not returned yet, they are equal :)
      return true;
 }
+
+void sendPacket(String input){
+  Serial.println(input);
+  delay(1000);
+  digitalWrite(13,LOW);
+}
+
 

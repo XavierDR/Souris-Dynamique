@@ -9,18 +9,37 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import serial
 import Arduino
+from WksObj import WksObj
 
 
 class MainGui(QWidget):
+
+    """ This class holds the user interface used
+        to add a mouse to the google worksheet
+    """
     def __init__(self):
+        """ MainGui constructor
+        :param ard : Arduino object used to communicate
+                     through serial port with data packets
+        :return: None
+        """
         super(MainGui, self).__init__()
         self.ard = Arduino.Arduino()
         self.createLayout()
-        
+
+
     def closeEvent(self, event):
+        """ This function is called when the GUI window is closed
+        :param event: Type of close event (window closed here)
+        :return: None
+        """
         self.ard.closeSerial()
         
     def createLayout(self):
+        """
+        This function initializes the GUI layout
+        :return: None
+        """
         # Window setting
         self.mainLayout = QGridLayout()
         self.setLayout(self.mainLayout)
@@ -60,7 +79,7 @@ class MainGui(QWidget):
         
         # Cancel button
         self.cancelBtn = QPushButton('Cancel')
-        self.cancelBtn.clicked.connect(self.closeWindow)
+        self.cancelBtn.clicked.connect(self.sendRand)
         self.cancelBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.cancelBtn, 2, 1)
 
@@ -70,6 +89,10 @@ class MainGui(QWidget):
         self.show()
         
     def addMouse(self):
+        """  Callback function for the add mouse button. This function
+             updates the new informations in the worksheet
+        :return: None
+        """
         self.messageLabel.setPalette(self.palette)
         age = self.ageLineEdit.text()
         name = self.nameLineEdit.text()
@@ -78,10 +101,10 @@ class MainGui(QWidget):
             self.messageLabel.setText('Please enter valid a name and age')
             self.palette.setColor(QPalette.Foreground,Qt.black)
             return
-        self.messageLabel.setText('Please scan the RFID tag on of new mouse')
-#        self.ard.addMouse()
+        self.messageLabel.setText('Please scan the RFID tag on of new mouse...')
+        newTag = self.ard.addMouse()
         # Il devrait y avoir un retour du tag RFID de la souris ici
-        self.messageLabel.setText('New mouse RFID: ')
+        self.messageLabel.setText('New mouse RFID: ' + str(newTag))
         
         # addMouseGoogle(RFID, name, age)
         
@@ -89,6 +112,9 @@ class MainGui(QWidget):
         self.ard.serialCom()
         
     def closeWindow(self):
+        """ Callback function for the 'Cancel button'
+        :return: None
+        """
         self.ard.closeSerial()
         QCoreApplication.instance().quit()
         

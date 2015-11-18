@@ -7,14 +7,22 @@ Created on Sun Sep 27 15:49:30 2015
 
 import serial
 import PacketTest
+import time
 
 class Arduino():
     def __init__(self):
+        """ Constructor for the Arduino object
+        :return: None
+        """
         
-        self.ser = serial.Serial('COM6', 115200)
+        self.ser = serial.Serial('COM6', 9600)
         self.isa = False;
         
     def serialCom(self):
+        """ Old function used to debug
+        :return:
+        """
+        #TODO: Delete this function when not needed anymore
         print('In serial COM')
         if self.isa == False:
             self.isa = True
@@ -27,24 +35,45 @@ class Arduino():
 #            print('b')
             
     def addMouse(self):
+        """ This function sends the command 'c' to the arduino,
+            that will engage in a RFID reading loop until it
+            reads a tag.
+        :return: The new mouse RFID
+        """
         print('Adding new mouse...')
         self.writePort('c')
+        newMouse = self.readPort()
+        return newMouse
         
     def closeSerial(self):
+        """ This function closes the serial port
+        :return: None
+        """
         self.ser.close()
         
     def readPort(self):
-        print('In read port')
-        return self.ser.read(self,20)
-        
-    def writePort(self, packet):
-        self.ser.write(bytes(packet, 'utf8'))
+        """ This function enters a loop to read input from the serial
+            port. a 5 second timeout is generated
+        :return: Returns the data received from the serial port
+        """
+        # TODO: Trouver une facon de mettre un vrai timeout sur readline
+        print('Reading port...')
+        import time
+        timeout = time.time() + 5   # 5 minutes from now
         while True:
             message = self.ser.readline()[:-2]
             message = str(message, 'utf-8')
-            if message:
+            if message or time.time() > timeout:
                 print(message)
                 return message
-            
+
+        
+    def writePort(self, packet):
+        """ This function writes the input packet to the serial port
+        :param packet: Information packet to send to serial port
+        :return: None
+        """
+        self.ser.write(bytes(packet, 'utf8'))
+
 if __name__ == '__main__':
     PacketTest.main()
