@@ -67,7 +67,7 @@ class WksObj:
         updateCellList[8].value = 0
         self.shtSum.update_cells(updateCellList)
 
-        self.shtHist.update_cell(1, numberOfMice*2-1, mouseName)
+       # self.shtHist.update_cell(1, numberOfMice*2-1, mouseName)
 
 
     def getMouseInfo(self, tagRFID):
