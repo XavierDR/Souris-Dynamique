@@ -3,7 +3,7 @@
 Dual Relay Board Kit Arduino Uno code example (#27114).
 
 This code turns each relay on and off at one second intervals.
-
+    
 You can monitor the status of the relays by displaying the Serial Monitor
 window. Upload sketch. Open Monitor window, and Be sure communications
 is set to 9600 baud. This feature of the demo is optional.
@@ -49,5 +49,5 @@ void loop() {
   Serial.println("Relay 1 OFF and Relay 2 ON");
   digitalWrite(relay1, LOW);
   digitalWrite(relay2, HIGH);
-  delay(2000);
+  delay(5000);
 }
