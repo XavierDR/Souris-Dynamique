@@ -58,14 +58,15 @@ class Arduino():
         """
         # TODO: Trouver une facon de mettre un vrai timeout sur readline
         print('Reading port...')
+        self.ser.flush()
         import time
         timeout = time.time() + 5   # 5 minutes from now
         while True:
+            message = ''
             message = self.ser.readline()[:-2]
             message = str(message, 'utf-8')
-            if message or time.time() > timeout:
-                print(message)
-                return message
+            print(message)
+            return message
 
         
     def writePort(self, packet):

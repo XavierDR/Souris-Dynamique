@@ -14,7 +14,12 @@ int mouse [] = {0,0,0,0,0,0,0,0,0,0,0,0};
 int souris3 [12];
 int i=0;
 
-//int mouse [][DEFAULT_SIZE];
+// Sensor variables
+int button = 12;
+
+// relay variables
+int relay2= 47;
+int relay1= 45;
 
 
 
@@ -26,24 +31,38 @@ void setup() {
   pinMode(rev,OUTPUT);  
   pinMode(m0, OUTPUT);
   pinMode(m1,OUTPUT);
+  pinMode(relay1, OUTPUT);
+  pinMode(relay2, OUTPUT);
   pinMode(13, OUTPUT);
+  pinMode(12, INPUT);
   digitalWrite(13, HIGH);
   delay(1000);
   digitalWrite(13, LOW);
   digitalWrite(rev, LOW);
   digitalWrite(m0, LOW);  
   digitalWrite(m1, LOW);
-  
+
+  digitalWrite(relay1, LOW);
+  digitalWrite(relay2, HIGH); 
 
 }
 
 void loop() {
-      
+   digitalWrite(13, LOW);
   //idMice();
+  if(digitalRead(button) == HIGH) { // Button pressed
+    digitalWrite(relay2, LOW);
+    delay(40);
+    digitalWrite(relay1, HIGH);
+  }
+  else {
+    digitalWrite(relay1, LOW);
+    digitalWrite(relay2, HIGH);
+  }
 
+  // Checks to see if there is any computer input;
   if(Serial.available() > 0){
     msg = Serial.read();
-    digitalWrite(13,HIGH);
     
     if (msg == 'a'){
       digitalWrite(m0, LOW);  
@@ -58,11 +77,6 @@ void loop() {
     else if(msg == 'c'){
       digitalWrite(13, HIGH);
       addMouse();
-      digitalWrite(13, HIGH);
-      delay(1000);
-      digitalWrite(13, LOW);
-      delay(1000);
-      digitalWrite(13, HIGH);
     }
   }
 }
@@ -96,6 +110,7 @@ if (Serial1.available() > 0)
 //        Serial.println(rfTag[b]);
         rfTag[b]=0;
       }
+      digitalWrite(12, LOW);
         
       i=0;
     }
@@ -105,8 +120,9 @@ if (Serial1.available() > 0)
 // This function waits for and RFID tag to be scanned. It is made to add
 // a new mouse RFID tag by sending it to Python.
 void addMouse(){
+  serialFlush();
   while(mouse[11] == 0){
-    digitalWrite(13, HIGH);
+    //digitalWrite(13, HIGH);
     incomingByte = Serial1.read();
     if (incomingByte==1)
     {
@@ -132,6 +148,9 @@ void addMouse(){
      sendPacket(str);
     }
   }
+  for (int i=0 ; i < 12; i++){
+      mouse[i] = 0;
+  }
 }
 
 // This function compares two arrays and returns true if
@@ -153,8 +172,12 @@ boolean arrayCompare(int a[], int b[], int len_a, int len_b){
 
 void sendPacket(String input){
   Serial.println(input);
-  delay(1000);
-  digitalWrite(13,LOW);
+}
+
+void serialFlush(){
+  while(Serial1.available() > 0){
+    char t = Serial1.read();
+  }
 }
 
 
