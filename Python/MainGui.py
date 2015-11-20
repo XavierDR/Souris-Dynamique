@@ -17,7 +17,7 @@ class MainGui(QWidget):
     """ This class holds the user interface used
         to add a mouse to the google worksheet
     """
-    def __init__(self):
+    def __init__(self, spreadsheet):
         """ MainGui constructor
         :param ard : Arduino object used to communicate
                      through serial port with data packets
@@ -25,6 +25,7 @@ class MainGui(QWidget):
         """
         super(MainGui, self).__init__()
         self.ard = Arduino.Arduino()
+        self.sps = spreadsheet
         self.createLayout()
 
 
@@ -79,7 +80,7 @@ class MainGui(QWidget):
         
         # Cancel button
         self.cancelBtn = QPushButton('Cancel')
-        self.cancelBtn.clicked.connect(self.sendRand)
+        self.cancelBtn.clicked.connect(self.closeWindow)
         self.cancelBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.cancelBtn, 2, 1)
 
@@ -106,7 +107,7 @@ class MainGui(QWidget):
         # Il devrait y avoir un retour du tag RFID de la souris ici
         self.messageLabel.setText('New mouse RFID: ' + str(newTag))
         
-        # addMouseGoogle(RFID, name, age)
+        self.sps.addMouseGoogle(newTag, name, age)
         
     def changeSpeed(self):
         self.ard.serialCom()
@@ -122,7 +123,11 @@ class MainGui(QWidget):
 
 def main():
     a = QApplication(sys.argv)
-    gui = MainGui()
+    spreadsheet = WksObj()
+    jsonName = 'SourisDynamique-a348c1bc1c12.json'
+    worksheetName = "InterfaceSouris"
+    spreadsheet.spreadsheetOpen(jsonName, worksheetName)
+    gui = MainGui(spreadsheet)
     sys.exit(a.exec_())
 #    a.exec()
     

@@ -29,25 +29,35 @@ for more information.
 
 int relay1 = 8;
 int relay2 = 9;
+int button = 10;
+int state = LOW;
 
 void setup() {
   pinMode (relay1, OUTPUT);
   pinMode (relay2, OUTPUT);
+  pinMode (button, INPUT);
   Serial.begin(9600);               // Use the Serial Monitor window at 9600 baud  
 }
 
 void loop() {
  
-
-
-  Serial.println("Relay 2 OFF and RELAY 1 ON");  // Turn on/off both relays
-  digitalWrite(relay2, LOW);
-  delay(40);                  // To make sure the 2nd valve closes before valve 1 opens
-  digitalWrite(relay1, HIGH);  
-  delay(2000);
+  state = digitalRead(button);
   
-  Serial.println("Relay 1 OFF and Relay 2 ON");
-  digitalWrite(relay1, LOW);
-  digitalWrite(relay2, HIGH);
-  delay(5000);
+  if ( state == HIGH) {
+    Serial.println("LOW");
+    digitalWrite(relay1, LOW);
+    digitalWrite(relay2, HIGH);
+    
+  }
+  else {
+    Serial.println("HIGH");  // Turn on/off both relays
+    digitalWrite(relay2, LOW);
+    delay(40);                  // To make sure the 2nd valve closes before valve 1 opens
+    digitalWrite(relay1, HIGH);  
+    
+
+  }
+  
+  
+
 }
