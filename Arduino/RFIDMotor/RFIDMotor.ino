@@ -60,6 +60,10 @@ void loop() {
     digitalWrite(relay2, HIGH);
   }
 
+  if (Serial1.available() > 0){
+    idMice();
+  }
+
   // Checks to see if there is any computer input;
   if(Serial.available() > 0){
     msg = Serial.read();
@@ -84,37 +88,74 @@ void loop() {
 // This function reads the hardware serial port (Serial1) and identifies
 // a specific mic, then prints it the software serial port
 void idMice(){
-if (Serial1.available() > 0) 
+  digitalWrite(13, HIGH);
+  incomingByte = Serial1.read();
+    if (incomingByte==1)
+    {
+      mouse[0]=1;
+      i=1;
+      while (mouse[11]==0)
+      {
+        if (Serial1.available() > 0)
+        {
+          incomingByte = Serial1.read();
+          mouse[i]=incomingByte;
+          i+=1;
+        }
+      }
+     // We now need to send the RFID value to Python.
+     // A conversion from int[] to char[] is needed
+     String str;
+     for (int i = 0; i < 12 ; i++){
+        str += String(mouse[i]) + ".";
+     }
+
+     str.remove(str.length()-1);
+     sendPacket(str);
+    }
+    for (int i=0 ; i < 12; i++){
+        mouse[i] = 0;
+      }
+    i = 0;
+
+/*if (Serial1.available() > 0) 
   {
     // read the incoming byte:
     incomingByte = Serial1.read();
     if (incomingByte==1)
     {
-      rfTag[0]=1;
+      mouse[0]=1;
       i=1;
       while (rfTag[11]==0)
       {
         if (Serial1.available() > 0)
         {
           incomingByte = Serial1.read();
-          rfTag[i]=incomingByte;
+          mouse[i]=incomingByte;
           i=i+1;
         }
       }
-      if(arrayCompare(rfTag, souris1, 12, 12)) Serial.println("Souris1!");
-      if(arrayCompare(rfTag, souris2, 12, 12)) Serial.println("Souris2!");
-      if(arrayCompare(rfTag, souris3, 12, 12)) Serial.println("Souris3!");
+      String str;
+       for (int i = 0; i < 12 ; i++){
+          str += String(mouse[i]) + ".";
+       }
+  
+       str.remove(str.length()-1);
+       sendPacket(str);
+      //if(arrayCompare(rfTag, souris1, 12, 12)) Serial.println("Souris1!");
+      //if(arrayCompare(rfTag, souris2, 12, 12)) Serial.println("Souris2!");
+      //if(arrayCompare(rfTag, souris3, 12, 12)) Serial.println("Souris3!");
       
-      for (int b=0; b < 12; b++)
-      {
-//        Serial.println(rfTag[b]);
-        rfTag[b]=0;
+      for (int i=0 ; i < 12; i++){
+        mouse[i] = 0;
       }
       digitalWrite(12, LOW);
         
       i=0;
     }
-  }
+  }*/
+  delay(1500);
+  digitalWrite(13,LOW);
 }
 
 // This function waits for and RFID tag to be scanned. It is made to add
