@@ -24,7 +24,7 @@ class MainGui(QWidget):
         :return: None
         """
         super(MainGui, self).__init__()
-        self.ard = Arduino.Arduino()
+        #self.ard = Arduino.Arduino()
         self.sps = spreadsheet
         self.createLayout()
 
@@ -129,7 +129,8 @@ def main():
     spreadsheet.spreadsheetOpen(jsonName, worksheetName)
     gui = MainGui(spreadsheet)
     sys.exit(a.exec_())
-#    a.exec()
+    print("Bonjour")
+    a.exec()
     
 if __name__ == '__main__':
     main()
