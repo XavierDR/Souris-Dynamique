@@ -75,12 +75,16 @@ class WksObj:
         :param tagRFID: The RFID tag of the mouse currently on the treadmill
         :return: none
         """
-        self.cmCell = self.shtSum.find(tagRFID)    # Find cell containing the RFID tag of the current mouse
+        try:
+            self.cmCell = self.shtSum.find(tagRFID)    # Find cell containing the RFID tag of the current mouse
+        except:
+            return False
         self.cmInfo = self.shtSum.row_values(self.cmCell.row)  # Fetch info for the current mouse
         training = self.cmInfo[3]
 
         self.trCell = self.shtTrain.find(training)  # This returns the cell containing training name text
         self.trInfo = self.shtTrain.row_values(self.trCell.row)
+        return True
 
     def updateMouseInfo(self):
         """ This allows to update the different worksheet once training is over

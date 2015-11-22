@@ -6,7 +6,7 @@ Created on Sun Sep 27 15:49:30 2015
 """
 
 import serial
-import PacketTest
+import MainGui
 import time
 
 class Arduino():
@@ -77,4 +77,4 @@ class Arduino():
         self.ser.write(bytes(packet, 'utf8'))
 
 if __name__ == '__main__':
-    PacketTest.main()
+    MainGui.main()
