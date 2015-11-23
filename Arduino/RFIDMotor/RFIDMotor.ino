@@ -17,9 +17,9 @@ int i=0;
 // Sensor variables
 int button = 12;
 
-// relay variables
-int relay2= 47;
-int relay1= 45;
+// Relay variables
+int relay1= 39;   // Blanc
+int relay2= 38;   // Orange
 
 
 
@@ -35,22 +35,18 @@ void setup() {
   pinMode(relay2, OUTPUT);
   pinMode(13, OUTPUT);
   pinMode(12, INPUT);
-  digitalWrite(13, HIGH);
-  delay(1000);
-  digitalWrite(13, LOW);
-  digitalWrite(rev, LOW);
-  digitalWrite(m0, LOW);  
-  digitalWrite(m1, LOW);
+  digitalWrite(rev, HIGH);
 
-  digitalWrite(relay1, LOW);
-  digitalWrite(relay2, HIGH); 
+  releasePistons();
+
+  setMotorSpeed(0);
 
 }
 
 void loop() {
    digitalWrite(13, LOW);
   //idMice();
-  if(digitalRead(button) == HIGH) { // Button pressed
+  /*if(digitalRead(button) == HIGH) { // Button pressed
     digitalWrite(relay2, LOW);
     delay(40);
     digitalWrite(relay1, HIGH);
@@ -58,7 +54,7 @@ void loop() {
   else {
     digitalWrite(relay1, LOW);
     digitalWrite(relay2, HIGH);
-  }
+  }*/
 
   if (Serial1.available() > 0){
     idMice();
@@ -71,16 +67,34 @@ void loop() {
     if (msg == 'a'){
       digitalWrite(m0, LOW);  
       digitalWrite(m1, LOW);
-      digitalWrite(13, LOW);
     }
     else if(msg =='b'){
       digitalWrite(m0, HIGH);
       digitalWrite(m1, LOW);
-      digitalWrite(13, HIGH);
     }
     else if(msg == 'c'){
-      digitalWrite(13, HIGH);
       addMouse();
+    }
+    else if(msg == 'M'){
+      digitalWrite(13, HIGH);
+      int code = Serial.parseInt();
+      if (code == 1){         // The mouse can start its training
+        bool expired = 0;
+        int timeout = 10000;
+        int timer = millis();
+        while(digitalRead(12) == LOW && expired == 0){
+          if(millis()-timer > timeout){
+            expired = 1;
+          }
+        }
+        if (expired == 0){          // The buttons were pressed
+          activatePistons();
+          setMotorSpeed(4);
+          delay(4000);
+          setMotorSpeed(0);
+          releasePistons();
+        }
+      }
     }
   }
 }
@@ -88,7 +102,6 @@ void loop() {
 // This function reads the hardware serial port (Serial1) and identifies
 // a specific mic, then prints it the software serial port
 void idMice(){
-  digitalWrite(13, HIGH);
   incomingByte = Serial1.read();
     if (incomingByte==1)
     {
@@ -155,7 +168,6 @@ void idMice(){
     }
   }*/
   delay(1500);
-  digitalWrite(13,LOW);
 }
 
 // This function waits for and RFID tag to be scanned. It is made to add
@@ -163,7 +175,6 @@ void idMice(){
 void addMouse(){
   serialFlush();
   while(mouse[11] == 0){
-    //digitalWrite(13, HIGH);
     incomingByte = Serial1.read();
     if (incomingByte==1)
     {
@@ -218,6 +229,54 @@ void sendPacket(String input){
 void serialFlush(){
   while(Serial1.available() > 0){
     char t = Serial1.read();
+  }
+}
+
+void activatePistons(){
+  digitalWrite(relay2, LOW);
+  delay(40);                  // To make sure the 2nd valve closes before valve 1 opens
+  digitalWrite(relay1, HIGH);  
+}
+
+void releasePistons(){
+  digitalWrite(relay1, LOW);
+  digitalWrite(relay2, HIGH); 
+}
+
+void setMotorSpeed(int motorSpeed){
+  switch(motorSpeed){
+    case 0:
+      digitalWrite(rev, HIGH);
+      break;
+    
+    case 1:
+      digitalWrite(13, HIGH);
+      digitalWrite(rev, LOW);
+      digitalWrite(m0, LOW);
+      digitalWrite(m1, LOW);
+      break;
+
+    case 2:
+    digitalWrite(13, LOW);
+    
+      digitalWrite(rev, LOW);
+      digitalWrite(m0, LOW);
+      digitalWrite(m1, HIGH);
+      break;
+
+    case 3:
+    digitalWrite(13, HIGH);
+      digitalWrite(rev, LOW);
+      digitalWrite(m0, HIGH);
+      digitalWrite(m1, HIGH);
+      break;
+
+    case 4:
+    digitalWrite(13, LOW);
+      digitalWrite(rev, LOW);
+      digitalWrite(m0, HIGH);
+      digitalWrite(m1, LOW);
+      break;
   }
 }
 
