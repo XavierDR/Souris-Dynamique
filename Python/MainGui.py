@@ -135,7 +135,7 @@ class MainGui(QWidget):
         #t.start()
 
 
-class readThread(QThread):
+class ReadThread(QThread):
     def __init__(self, spreadsheet, ard):
         QThread.__init__(self)
         self.running = True
@@ -177,7 +177,7 @@ def main():
     arduino = Arduino.Arduino()
     spreadsheet.spreadsheetOpen(jsonName, worksheetName)
 
-    x = readThread(spreadsheet, arduino)
+    x = ReadThread(spreadsheet, arduino)
     gui = MainGui(spreadsheet, x, arduino)
     print('1')
     a.exec_()
