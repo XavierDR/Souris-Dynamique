@@ -7,9 +7,6 @@ int m1 = 52;
 // RFID variables
 int incomingByte = 0;
 const int DEFAULT_SIZE = 12;
-int rfTag [] = {0,0,0,0,0,0,0,0,0,0,0,0};
-int souris1 [] = {1,9,12,110,114,72,21,50,93,17,7,61};
-int souris2 [] = {1,9,13,0,0,0,0,0,0,0,0,4};
 int mouse [] = {0,0,0,0,0,0,0,0,0,0,0,0};
 int souris3 [12];
 int i=0;
@@ -76,25 +73,7 @@ void loop() {
       addMouse();
     }
     else if(msg == 'M'){
-      digitalWrite(13, HIGH);
-      int code = Serial.parseInt();
-      if (code == 1){         // The mouse can start its training
-        bool expired = 0;
-        int timeout = 10000;
-        int timer = millis();
-        while(digitalRead(12) == LOW && expired == 0){
-          if(millis()-timer > timeout){
-            expired = 1;
-          }
-        }
-        if (expired == 0){          // The buttons were pressed
-          activatePistons();
-          setMotorSpeed(4);
-          delay(4000);
-          setMotorSpeed(0);
-          releasePistons();
-        }
-      }
+      mouseReadyForTraining();
     }
   }
 }
@@ -241,6 +220,8 @@ void activatePistons(){
 void releasePistons(){
   digitalWrite(relay1, LOW);
   digitalWrite(relay2, HIGH); 
+  delay(500);
+  digitalWrite(relay2, LOW);
 }
 
 void setMotorSpeed(int motorSpeed){
@@ -277,6 +258,54 @@ void setMotorSpeed(int motorSpeed){
       digitalWrite(m0, HIGH);
       digitalWrite(m1, LOW);
       break;
+  }
+}
+
+void mouseReadyForTraining(){
+  digitalWrite(13, HIGH);
+  int code = Serial.parseInt();
+  if (code == 1){         // The mouse can start its training
+    if(Serial.available() > 0){
+      char msg = Serial.read();
+      if (msg == 'V'){
+        code = Serial.parseInt();
+        if (Serial.available() > 0){
+          if (Serial.read() == 'T'){
+            int trainingTime = Serial.parseInt()*1000;
+            bool expired = 0;
+            int timeout = 10000;
+            unsigned long timer = millis();
+            while(digitalRead(12) == LOW && expired == 0){
+              if(millis()-timer > timeout){
+                expired = 1;
+              }
+            }
+            if (expired == 0){          // The buttons were pressed
+              activatePistons();
+              setMotorSpeed(code);
+              timer = millis();
+              unsigned long elapsedTime = 0;
+              while(elapsedTime < trainingTime){       
+                if (digitalRead(button) == LOW){                      // This would mean that the mouse detached,
+                  String errMsg = "E" + String(int(elapsedTime/1000));// so we release it and print error message
+                  sendPacket(errMsg);
+                  setMotorSpeed(0);
+                  releasePistons();
+                  serialFlush();
+                  return;
+                }
+                elapsedTime = millis() - timer;
+              }
+              // The whole training was successful, motors are stopped and mouse is released
+              setMotorSpeed(0);
+              releasePistons();
+              serialFlush();
+              sendPacket("EOTS");                  // End of Training Successfull
+            }
+          }
+        }
+      }
+    }
   }
 }
 
