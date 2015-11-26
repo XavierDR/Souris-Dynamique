@@ -147,7 +147,7 @@ class ReadThread(QThread):
 
     def run(self):
         while self.running is True:
-            self.sleep(0.5)
+            self.sleep(0.3)
             if self.ard.ser.inWaiting() > 0:    # If the input buffer isn't empty
                 msg = self.ard.readPort()       # Read what's in the input buffer
                 self.ard.ser.flush()            # Flush the input buffer
@@ -156,11 +156,22 @@ class ReadThread(QThread):
                     if mouse is True:
                         print('Mouse exists')
                         #TODO: send infos to the arduino
-                        self.ard.writePort('M1')
+                        packet = 'M1V' + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
+                        print(packet)
+                        self.ard.writePort(packet)
                     else:
                         print("Mouse doesn't exist")
                         self.ard.writePort('M0')
-                print(msg)
+
+                if msg == "EOTS":
+                    print("Training was successful")
+                    self.sps.updateMouseInfo()
+                    self.ard.ser.flush()
+
+                if msg[0] == 'E':
+                    trainingTime = ''.join(x for x in msg if x.isdigit())
+                    print("Training was not succesful and lasted: " + str(trainingTime) + " seconds")
+                    self.ard.ser.flush()
 
     def stop(self):
         self.running = False
