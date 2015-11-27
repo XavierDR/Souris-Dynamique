@@ -1,5 +1,5 @@
 import time
-from WksObj import WksObj
+from CurrentMouse import CurrentMouse
 
 
 jsonName = 'SourisDynamique-a348c1bc1c12.json'
@@ -11,7 +11,7 @@ tagRFID = "12345"
 
 
 # time1 = time.time()
-mouse = WksObj()
+mouse = CurrentMouse()
 # time2 = time.time()
 mouse.spreadsheetOpen(jsonName, worksheetName)
 # time3 = time.time()

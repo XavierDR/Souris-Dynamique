@@ -1,6 +1,6 @@
 import time
 import gspread
-from WksObj import WksObj
+from CurrentMouse import CurrentMouse
 
 
 jsonName = 'SourisDynamique-a348c1bc1c12.json'
@@ -10,29 +10,12 @@ worksheetName = "InterfaceSouris"
 tagRFID = "1.9.12.234.145.220.10.0.0.0.0.168"
 
 
-# time1 = time.time()
-mouse = WksObj()
-# time2 = time.time()
+mouse = CurrentMouse()
 mouse.spreadsheetOpen(jsonName, worksheetName)
-# time3 = time.time()
 
-mouse.addMouseGoogle(tagRFID,"Mouse1",3)
 mouse.getMouseInfo(tagRFID)
-mouse.updateMouseInfo()
+mouse.updateMouseInfo(1)
 
-
-# time4 = time.time()
-# mouse.updateMouseInfo()
-# time5 = time.time()
-# mouse.addMouseGoogle("123456", "Mouse4", 3)
-print("ALLO")
-# time6 = time.time()
-
-# print("Creation objet:", time2-time1)
-# print("Ouverture spreadsheet", time3-time2)
-# print("Get info", time4-time3)
-# print("Update info",time5-time4)
-# print("Adding new mouse",time6-time5)
 
 #TODO: LAST TRAINING, WHAT'S UP WITH IT
 

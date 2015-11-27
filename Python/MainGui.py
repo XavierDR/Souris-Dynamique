@@ -9,7 +9,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import serial
 import Arduino
-from WksObj import WksObj
+from CurrentMouse import CurrentMouse
 from threading import Thread
 import time
 
@@ -183,7 +183,7 @@ class ReadThread(QThread):
 
 def main():
     a = QApplication(sys.argv)
-    spreadsheet = WksObj()
+    spreadsheet = CurrentMouse()
     jsonName = 'SourisDynamique-a348c1bc1c12.json'
     worksheetName = "InterfaceSouris"
     arduino = Arduino.Arduino()
@@ -203,3 +203,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+ 
