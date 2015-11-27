@@ -156,7 +156,8 @@ class ReadThread(QThread):
                     if mouse is True:
                         print('Mouse exists')
                         #TODO: send infos to the arduino
-                        packet = 'M1V' + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
+                        packet = 'M1V' \
+                                 + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
                         print(packet)
                         self.ard.writePort(packet)
                     else:

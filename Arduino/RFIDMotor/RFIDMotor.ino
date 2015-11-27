@@ -6,9 +6,7 @@ int m1 = 52;
 
 // RFID variables
 int incomingByte = 0;
-const int DEFAULT_SIZE = 12;
 int mouse [] = {0,0,0,0,0,0,0,0,0,0,0,0};
-int souris3 [12];
 int i=0;
 
 // Sensor variables
@@ -35,7 +33,6 @@ void setup() {
   digitalWrite(rev, HIGH);
 
   releasePistons();
-
   setMotorSpeed(0);
 
 }
