@@ -31,6 +31,7 @@ class MainGui(QWidget):
         self.sps = spreadsheet
         self.createLayout()
         self.t = readThread
+        self.t.start()
 
     def closeEvent(self, event):
         """ This function is called when the GUI window is closed
@@ -48,7 +49,7 @@ class MainGui(QWidget):
         self.mainLayout = QGridLayout()
         self.setLayout(self.mainLayout)
         self.palette = QPalette()
-        self.palette.setColor(QPalette.Foreground, Qt.red)
+        self.palette.setColor(QPalette.Foreground, Qt.black)
 
         # Labels
         self.nameLabel = QLabel('Name')
@@ -61,7 +62,7 @@ class MainGui(QWidget):
 
         self.messageLabel = QLabel("Waiting for a mouse to be added")
         self.setMaximumHeight(25)
-        self.mainLayout.addWidget(self.messageLabel, 3, 0)
+        self.mainLayout.addWidget(self.messageLabel, 3, 0, 1, 2)
 
         # Line edits
         # Mouse name
@@ -87,10 +88,6 @@ class MainGui(QWidget):
         self.cancelBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.cancelBtn, 2, 1)
 
-        # Thread test button
-        self.threadBtn = QPushButton('Thread')
-        self.threadBtn.clicked.connect(self.readEvents)
-        self.mainLayout.addWidget(self.threadBtn, 4, 0)
 
         self.setWindowTitle("Mouse adding")
         self.setGeometry(200, 200, 400, 200)
@@ -106,10 +103,13 @@ class MainGui(QWidget):
         age = self.ageLineEdit.text()
         name = self.nameLineEdit.text()
         if age == 'Enter the age' or name == 'Enter the name here':
+            self.palette.setColor(QPalette.Foreground, Qt.red)
             self.messageLabel.setPalette(self.palette)
             self.messageLabel.setText('Please enter valid a name and age')
             self.palette.setColor(QPalette.Foreground, Qt.black)
             return
+        self.palette.setColor(QPalette.Foreground, Qt.black)
+        self.messageLabel.setPalette(self.palette)
         self.messageLabel.setText('Please scan the RFID tag on of new mouse...')
         newTag = self.ard.addMouse()
         # Il devrait y avoir un retour du tag RFID de la souris ici
@@ -128,11 +128,6 @@ class MainGui(QWidget):
         """
         self.ard.closeSerial()
         QCoreApplication.instance().quit()
-
-    def readEvents(self):
-        #t = readThread(self.ard)
-        self.t.start()
-        #t.start()
 
 
 class ReadThread(QThread):
