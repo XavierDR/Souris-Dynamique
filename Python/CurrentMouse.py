@@ -1,4 +1,5 @@
 import gspread
+import time
 import datetime
 import json
 import gspread
@@ -108,12 +109,20 @@ class CurrentMouse:
         self.trInfo = self.shtTrain.row_values(self.trCell.row)
         return True
 
+    def canMouseTrain(self):
+        # Checking if the mouse is allowed to train
+        print(time.time()-float(self.cmInfo[9]))
+        if (time.time()-float(self.cmInfo[9])) > 20:
+            return True
+        else:
+            return False
+
     def updateMouseInfo(self, realTrainingTime=0):
         """ This allows to update the different worksheet once training is over
         :return: none
         """
         # Updating worksheet Summary
-        cellRange = 'F' + str(self.cmCell.row) + ':I' + str(self.cmCell.row)
+        cellRange = 'F' + str(self.cmCell.row) + ':J' + str(self.cmCell.row)
         updateCellList = self.shtSum.range(cellRange)
         updateCellList[0].value = int(self.cmInfo[5]) - 1                # Repetitions remaining
 
@@ -133,9 +142,9 @@ class CurrentMouse:
 
         # Updating cells
         updateCellList[1].value = totalTimeStr                                  # Training time
-        updateCellList[2].value = int(self.cmInfo[7]) + int(self.trInfo[4])     # Approximate distance
+        updateCellList[2].value = float(self.cmInfo[7]) + float(self.trInfo[4])     # Approximate distance
         updateCellList[3].value = int(self.cmInfo[8]) + 1                       # Total number of trainings
-
+        updateCellList[4].value = int(time.time())                              # Epoch time to check if mouse can train
         # Updating the google sheet
         self.shtSum.update_cells(updateCellList)
 

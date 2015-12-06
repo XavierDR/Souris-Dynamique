@@ -9,13 +9,16 @@ worksheetName = "InterfaceSouris"
 # Read RFID tag
 tagRFID = "1.9.12.234.145.220.10.0.0.0.0.168"
 
-
 mouse = CurrentMouse()
 mouse.spreadsheetOpen(jsonName, worksheetName)
 
 mouse.getMouseInfo(tagRFID)
-mouse.updateMouseInfo(1)
-
+mouse.updateMouseInfo()
+mouse.getMouseInfo(tagRFID)
+if mouse.canMouseTrain() == True:
+    print("Mouse can train")
+else:
+    print("Training not available")
 
 #TODO: LAST TRAINING, WHAT'S UP WITH IT
 
