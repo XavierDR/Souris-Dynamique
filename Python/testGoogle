@@ -1,17 +1,4 @@
-import json
-import gspread
-from oauth2client.client import SignedJwtAssertionCredentials
-
-json_key = json.load(open('SourisDynamique-a348c1bc1c12.json'))
-scope = ['https://spreadsheets.google.com/feeds']
-
-credentials = SignedJwtAssertionCredentials(json_key['client_email'], bytes(json_key['private_key'], 'utf-8'), scope)
-
-gc = gspread.authorize(credentials)
-
-wks = gc.open("InterfaceSouris")
-
-wks = wks.worksheet("Summary")
-
-print(wks.row_values(4))
-
+if False:
+    print("ALLO")
+else:
+    print("FU")
