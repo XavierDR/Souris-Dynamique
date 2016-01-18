@@ -148,13 +148,24 @@ class ReadThread(QThread):
                 self.ard.ser.flush()            # Flush the input buffer
                 if msg[0] is '1' and msg[1] is '.':   # It's an RFID tag
                     mouse = self.sps.getMouseInfo(msg)
+                    trainingAllowed = self.sps.canMouseTrain()
                     if mouse is True:
                         print('Mouse exists')
                         #TODO: send infos to the arduino
-                        packet = 'M1V' \
+                        #TODO: TEST THIS SHIT OUT, DIDN'T TEST IT AT ALL
+
+                        if trainingAllowed is True:
+                            packet = 'M1V' \
                                  + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
-                        print(packet)
-                        self.ard.writePort(packet)
+                            print(packet)
+                            self.ard.writePort(packet)
+
+                        else:
+                            packet = 'M0V' \
+                                 + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
+                            print(packet)
+                            self.ard.writePort(packet)
+
                     else:
                         print("Mouse doesn't exist")
                         self.ard.writePort('M0')

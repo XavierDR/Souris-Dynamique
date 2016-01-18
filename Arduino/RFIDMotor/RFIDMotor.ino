@@ -197,7 +197,7 @@ void mouseReadyForTraining(){
             bool expired = 0;
             int timeout = 10000;
             unsigned long timer = millis();
-            while( digitalRead(button1) == LOW && digitalRead(button2) == LOW && expired == 0){
+            while( (digitalRead(button1) == LOW || digitalRead(button2) == LOW) && expired == 0){   // Alex: I changed it from buton1 && button2 to button1 || button2
               if(millis()-timer > timeout){
                 expired = 1;
               }
