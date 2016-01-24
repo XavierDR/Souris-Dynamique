@@ -142,7 +142,7 @@ class ReadThread(QThread):
 
     def run(self):
         while self.running is True:
-            self.sleep(0.3)
+            self.sleep(1)
             if self.ard.ser.inWaiting() > 0:    # If the input buffer isn't empty
                 msg = self.ard.readPort()       # Read what's in the input buffer
                 self.ard.ser.flush()            # Flush the input buffer

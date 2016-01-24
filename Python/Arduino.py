@@ -15,7 +15,7 @@ class Arduino():
         :return: None
         """
         
-        self.ser = serial.Serial('COM6', 9600)
+        self.ser = serial.Serial('/dev/ttyACM0', 9600)
         self.isa = False;
         
     def serialCom(self):
@@ -64,7 +64,7 @@ class Arduino():
         while True:
             message = ''
             message = self.ser.readline()[:-2]
-            message = str(message, 'utf-8')
+            message = str(message)
             print(message)
             return message
 
@@ -74,7 +74,7 @@ class Arduino():
         :param packet: Information packet to send to serial port
         :return: None
         """
-        self.ser.write(bytes(packet, 'utf8'))
+        self.ser.write(packet)
 
 if __name__ == '__main__':
     MainGui.main()
