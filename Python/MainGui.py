@@ -162,7 +162,10 @@ class ReadThread(QThread):
                             self.sps.updateWaterDeliveryTime()
 
                         else:
-                            self.ard.writePort('M0')
+                            packet = 'M0V' \
+                                 + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
+                            print(packet)
+                            self.ard.writePort(packet)
                             self.sps.updateWaterDeliveryTime()
 
                     else:

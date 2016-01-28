@@ -176,7 +176,7 @@ void idMice(){
       }
     i = 0;
 
- // delay(1500);  Why was this here?
+    delay(1500); // Why is this here?
 }
 
 // This function makes sure the mouse is ready for training by reading the confirmation
