@@ -176,7 +176,7 @@ void idMice(){
       }
     i = 0;
 
-  delay(1500);
+ // delay(1500);  Why was this here?
 }
 
 // This function makes sure the mouse is ready for training by reading the confirmation
@@ -243,7 +243,7 @@ void releaseWater(){
 void releasePistons(){
   digitalWrite(relay1, LOW);
   digitalWrite(relay2, HIGH); 
-  delay(500);
+  delay(100);
   digitalWrite(relay2, LOW);
 }
 
