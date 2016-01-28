@@ -147,8 +147,12 @@ class ReadThread(QThread):
                 msg = self.ard.readPort()       # Read what's in the input buffer
                 self.ard.ser.flush()            # Flush the input buffer
                 if msg[0] is '1' and msg[1] is '.':   # It's an RFID tag
+                    #TODO: REMOVE THOSE DEBUGGING LINES
+                    print("Fetching google info")
                     mouse = self.sps.getMouseInfo(msg)
+                    print("Checking if mouse can train")
                     trainingAllowed = self.sps.canMouseTrain()
+                    print("checked")
                     if mouse is True:
                         print('Mouse exists')
                         #TODO: send infos to the arduino
