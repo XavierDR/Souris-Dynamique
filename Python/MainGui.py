@@ -175,10 +175,6 @@ class ReadThread(QThread):
                     self.sps.updateMouseInfo()
                     self.ard.ser.flush()
 
-                if msg[0] == 'E':
-                    trainingTime = ''.join(x for x in msg if x.isdigit())
-                    print("Training was not succesful and lasted: " + str(trainingTime) + " seconds")
-                    self.ard.ser.flush()
 
     def stop(self):
         self.running = False
@@ -201,7 +197,6 @@ def main():
     a.exec_()
 
     # sys.exit(a.exec_())
-
     print('2')
 
 

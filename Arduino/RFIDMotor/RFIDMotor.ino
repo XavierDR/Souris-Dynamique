@@ -259,6 +259,8 @@ void serialFlush(){
   while(Serial1.available() > 0){
     char t = Serial1.read();
   }
+  // Testing
+  Serial1.flush();
 }
 
 // Starts the motor speed to the input given speed.
