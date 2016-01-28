@@ -166,7 +166,6 @@ class ReadThread(QThread):
                                  + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
                             print(packet)
                             self.ard.writePort(packet)
-                            self.sps.updateWaterDeliveryTime()
 
                     else:
                         print("Mouse doesn't exist")
