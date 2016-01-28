@@ -123,6 +123,11 @@ class CurrentMouse:
         else:
             return False
 
+    def updateWaterDeliveryTime(self):
+        self.shtSum.update_cell(self.cmCell.row, 10, time.time())
+
+
+
     def updateMouseInfo(self, realTrainingTime=0):
         """ This allows to update the different worksheet once training is over
         :return: none
