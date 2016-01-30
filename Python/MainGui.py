@@ -198,6 +198,7 @@ def main():
 
     x = ReadThread(spreadsheet, arduino)
     gui = MainGui(spreadsheet, x, arduino)
+    localMouseInfo = dict()
     print('1')
     a.exec_()
 

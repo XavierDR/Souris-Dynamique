@@ -33,6 +33,7 @@ class CurrentMouse:
         self.trInfo = ""            # Information for the current training (from worksheet trainings)
         self.trainingList = ""
         self.trainingListRep = ""
+        self.localData = ""
 
     def spreadsheetOpen(self, jsonName, sheetName):
         """
@@ -64,6 +65,8 @@ class CurrentMouse:
         self.trainingList = self.shtTrain.col_values(1)
         self.trainingListRep = self.shtTrain.col_values(2)
 
+        self.openLocalData()
+
     def addMouseGoogle(self, tagRFID, mouseName, age):
         """ This function allows to add a new mouse to the Google Spread Sheet
         :param tagRFID: RFID scanned. Info coming from Arduino
@@ -93,6 +96,8 @@ class CurrentMouse:
         self.shtSum.update_cells(updateCellList)            # UPDATING ALL RANGE
 
         self.shtHist.update_cell(1, numberOfMice*2-1, mouseName)    # Adding the mouse to the history worksheet
+
+        self.localData[tagRFID] = 0        # update local data, last training stamp set at 0 so it can train immediately
 
 
     def getMouseInfo(self, tagRFID):
@@ -155,7 +160,8 @@ class CurrentMouse:
         updateCellList[1].value = totalTimeStr                                  # Training time
         updateCellList[2].value = float(self.cmInfo[7]) + float(self.trInfo[4])     # Approximate distance
         updateCellList[3].value = int(self.cmInfo[8]) + 1                       # Total number of trainings
-        updateCellList[4].value = int(time.time())                              # Epoch time to check if mouse can train
+        updateTime = time.time()
+        updateCellList[4].value = int(updateTime)                              # Epoch time to check if mouse can train
         # Updating the google sheet
         self.shtSum.update_cells(updateCellList)
 
@@ -175,3 +181,18 @@ class CurrentMouse:
             updateCellList[2].value = newTraining[1]
 
             self.shtSum.update_cells(updateCellList)
+
+            self.localData[self.cmInfo[2]] = updateTime
+
+
+#TODO: fonction updtae local data
+    def openLocalData(self):
+        localRFID = self.shtSum.col_values(3)       # Get all RFID tags
+        localTime = self.shtSum.col_values(10)
+        localRFID[:] = (value for value in localRFID if value != '')    # Remove empty cells
+        localTime[:] = (value for value in localTime if value != '')
+        localRFID.pop(0)        # Remove the header text "RFID tag"
+        localTime.pop(0)
+
+        self.localData = dict(zip(localRFID,localTime))
+
