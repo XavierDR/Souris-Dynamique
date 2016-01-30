@@ -41,7 +41,7 @@ class CurrentMouse:
         :param sheetName: Name of the spreadsheet
         :return: none
         """
-        # TRYING SOME SHIT OUT
+        # Trying to bypass opening the json file in order to facilitate .exe making
         # Opening the google spreadsheet
         #json_key = json.load(open(jsonName))
         #scope = ['https://spreadsheets.google.com/feeds']
@@ -128,6 +128,21 @@ class CurrentMouse:
         else:
             return False
 
+    def canMouseTrainV2(self,tagRFID):
+
+        # Checking if the mouse exists
+        if (tagRFID in self.localData):
+            # Checking if the mouse is allowed to train
+            print(time.time()-float(self.localData[tagRFID]))
+            if (time.time()-float(self.localData[tagRFID])) > 20:
+                return True
+            else:
+                return False
+
+        else:
+            print("Mouse doesn't exist!")
+            return False
+
     def updateWaterDeliveryTime(self):
         self.shtSum.update_cell(self.cmCell.row, 10, time.time())
 
@@ -182,10 +197,9 @@ class CurrentMouse:
 
             self.shtSum.update_cells(updateCellList)
 
-            self.localData[self.cmInfo[2]] = updateTime
+        self.localData[self.cmInfo[2]] = updateTime
 
 
-#TODO: fonction updtae local data
     def openLocalData(self):
         localRFID = self.shtSum.col_values(3)       # Get all RFID tags
         localTime = self.shtSum.col_values(10)
