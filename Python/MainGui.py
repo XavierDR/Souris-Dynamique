@@ -142,19 +142,35 @@ class ReadThread(QThread):
 
     def run(self):
         while self.running is True:
-            self.sleep(0.3)
+            self.sleep(1)
             if self.ard.ser.inWaiting() > 0:    # If the input buffer isn't empty
                 msg = self.ard.readPort()       # Read what's in the input buffer
                 self.ard.ser.flush()            # Flush the input buffer
                 if msg[0] is '1' and msg[1] is '.':   # It's an RFID tag
+                    #TODO: REMOVE THOSE DEBUGGING LINES
+                    print("Fetching google info")
                     mouse = self.sps.getMouseInfo(msg)
+                    print("Checking if mouse can train")
+                    trainingAllowed = self.sps.canMouseTrain()
+                    print("checked")
                     if mouse is True:
                         print('Mouse exists')
                         #TODO: send infos to the arduino
-                        packet = 'M1V' \
+                        #TODO: TEST THIS SHIT OUT, DIDN'T TEST IT AT ALL
+
+                        if trainingAllowed is True:
+                            packet = 'M1V' \
                                  + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
-                        print(packet)
-                        self.ard.writePort(packet)
+                            print(packet)
+                            self.ard.writePort(packet)
+                            self.sps.updateWaterDeliveryTime()
+
+                        else:
+                            packet = 'M0V' \
+                                 + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
+                            print(packet)
+                            self.ard.writePort(packet)
+
                     else:
                         print("Mouse doesn't exist")
                         self.ard.writePort('M0')
@@ -164,10 +180,6 @@ class ReadThread(QThread):
                     self.sps.updateMouseInfo()
                     self.ard.ser.flush()
 
-                if msg[0] == 'E':
-                    trainingTime = ''.join(x for x in msg if x.isdigit())
-                    print("Training was not succesful and lasted: " + str(trainingTime) + " seconds")
-                    self.ard.ser.flush()
 
     def stop(self):
         self.running = False
@@ -186,11 +198,11 @@ def main():
 
     x = ReadThread(spreadsheet, arduino)
     gui = MainGui(spreadsheet, x, arduino)
+    localMouseInfo = dict()
     print('1')
     a.exec_()
 
     # sys.exit(a.exec_())
-
     print('2')
 
 

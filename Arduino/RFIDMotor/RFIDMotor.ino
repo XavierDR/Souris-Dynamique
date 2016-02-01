@@ -176,7 +176,7 @@ void idMice(){
       }
     i = 0;
 
-  delay(1500);
+    delay(1500); // Why is this here?
 }
 
 // This function makes sure the mouse is ready for training by reading the confirmation
@@ -197,7 +197,7 @@ void mouseReadyForTraining(){
             bool expired = 0;
             int timeout = 10000;
             unsigned long timer = millis();
-            while( digitalRead(button1) == LOW && digitalRead(button2) == LOW && expired == 0){
+            while( (digitalRead(button1) == LOW || digitalRead(button2) == LOW) && expired == 0){   // Alex: I changed it from buton1 && button2 to button1 || button2
               if(millis()-timer > timeout){
                 expired = 1;
               }
@@ -235,7 +235,7 @@ void mouseReadyForTraining(){
 // it makes it available from drinking. The motor is taken back after 2 seconds
 void releaseWater(){
   analogWrite(linearMotor, 125);
-  delay(4000);
+  releaseWater(4);
   analogWrite(linearMotor, 25);
 }
 
@@ -243,7 +243,7 @@ void releaseWater(){
 void releasePistons(){
   digitalWrite(relay1, LOW);
   digitalWrite(relay2, HIGH); 
-  delay(500);
+  delay(100);
   digitalWrite(relay2, LOW);
 }
 
@@ -259,6 +259,8 @@ void serialFlush(){
   while(Serial1.available() > 0){
     char t = Serial1.read();
   }
+  // Testing
+  Serial1.flush();
 }
 
 // Starts the motor speed to the input given speed.
@@ -304,3 +306,17 @@ void setMotorSpeed(int motorSpeed){
   }
 }
 
+// Fonction de distribution de l'eau
+// Prend en argument le nombre de gouttes que l'on veut donner à la souris
+// Aucun retour
+void releaseWater(int nbGouttes)
+{
+  float timestart=millis();
+  while(millis()<timestart+(1550*nbGouttes)) // Correspond à la distribution de 4 gouttes (Peut être changer selon ce qu'on veut donner au souris)
+  {
+    analogWrite(8,200);
+    delay(50);
+    analogWrite(8,0);
+    delay(1500);
+  }
+}

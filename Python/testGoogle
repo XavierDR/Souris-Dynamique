@@ -1,4 +1,0 @@
-if False:
-    print("ALLO")
-else:
-    print("FU")

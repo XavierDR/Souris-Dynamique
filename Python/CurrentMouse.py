@@ -3,6 +3,7 @@ import time
 import datetime
 import json
 import gspread
+import oauth2client
 from oauth2client.client import SignedJwtAssertionCredentials
 
 class CurrentMouse:
@@ -32,6 +33,7 @@ class CurrentMouse:
         self.trInfo = ""            # Information for the current training (from worksheet trainings)
         self.trainingList = ""
         self.trainingListRep = ""
+        self.localData = ""
 
     def spreadsheetOpen(self, jsonName, sheetName):
         """
@@ -39,15 +41,20 @@ class CurrentMouse:
         :param sheetName: Name of the spreadsheet
         :return: none
         """
-
+        # Trying to bypass opening the json file in order to facilitate .exe making
         # Opening the google spreadsheet
-        json_key = json.load(open(jsonName))
+        #json_key = json.load(open(jsonName))
+        #scope = ['https://spreadsheets.google.com/feeds']
+        #credentials = SignedJwtAssertionCredentials(json_key['client_email'], bytes(json_key['private_key'], 'utf-8'), scope)
+        #gc = gspread.authorize(credentials)
+        #wks = gc.open(sheetName)
+
+        json_key = {'client_id': '383307907019-e6mpmmj8j93borqh0tq5885ro6t2bqg2.apps.googleusercontent.com', 'private_key': '-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCyeoOX5Tm5183m\nVkI5zm5khio3yg/7wUlhXOsiay+zQY5Dt7vYdY8kY+ddVe6fbpGCjIb/vr7JVmE3\njMir+la5L5xt8MiGzFJwQiE/InQrt1th96HdMHzakoR8dFmMUceSuy3Nq8touQYt\nzPGHnXgqtvn3sSVasVNNc0Kvm4PzwBmPc/3JrPr1493wQg84BieABKJqlgyFpE+l\nC60lMFVkKvvbeiSeV3mYFa/ZUZXQw8kSqxjyVWqpIZ3W1DUi9xoKf1i9xqsacizP\nu2OR/fZ7XVVuHPNEkRJogz8dPgYhS1XGkzzi57mk1TmXU3TlDEiuX+9ZesBqTinl\n5m988qhLAgMBAAECggEAfXrdIeGrIBm1TQfAL9wOiOY6sFaDvkA6UxV8ywoI00J3\nvuxiSOD97lu+wkQ0LCsUanBaSVvVzr/IQcHdI+wxJKlwlWr/0KW+H+aecUDL5CBZ\nQxtS1avNW+4+7zDt9FVatrKalUr/C3Vp/rFj7jCr13wlahtFY+nf40fxznzL3IY5\nsyNpawi+EEaMuE4vc1IhnpiJz8BAj12lNqrDEuyLldSMfrAxZzD5c4mRuojJ90Ju\nDGswFHYnzXv1RdCQydZn49HU2hrYG5o753hCX0lnEf0L7d6ErT+P6SA4lL87CwX+\nyc5LiJb65qY4l1g8leZJKNxHtYlmSwxrj6ZnoIGOYQKBgQDdUeifOl7UvI581J+z\npg9njcV8TPbl2K8y5RIw6s1ifvj6pvjatZfGJvKoWiny6yzFJhhBnOW7Xqll8ens\nTIgXl04SAitt1BHgzoTe9QB4iFTAayMxb0oZINH1jiBVYu3JfKb2VvP+KjDu0wob\neQLY/xvYjVL53vkKVX6w8f0x/QKBgQDOcg3MwXmz2lJlUI5VyJUAtBLgSStn7YdS\nYALD6e/sxTx7SV6kCBJZV6azSe+sUdG/GjFirl1qPhHiDf9Wq4BEpLLFz5ZtOJWM\nd7BikYBmwC8brHzjQnDhzrnKKjJ4nXfI33aXXCJLddXKGjkD0y93joWUmSrBKd1S\nFEW+0MfR5wKBgQC5AATRRLuMXGlG030DcGYkC4/uzW78xln80xqXpU41bSm2a+hM\n+cp6qofgTi4OjqMH0UYpYntuWjyDqOn+yiJgheuOhh3DWqfvIPJUZLwWBO/DQEtU\nwVBRHOwktL82YNGfwQDXneuqo53vpJ0oRckplmWyaL/Zepb2Gm0if8VECQKBgQDJ\n4/og4pi9TWXE1OnNdJJbFL9c/dFoGn97DI/HvlC3MQ/71X2rVoVzP+ezcDvmPkGr\n7NadFb4fN0JP2rZ5sNCI0LRQBLmsaGi/7RDe5EI4ufuXybB8oy43de51iZzAHebV\n18tnLGARgdQoiEp3tiC2f/ecocmRC/r32QF4IT84wwKBgQDR2xeZe9wqzH/s+c9K\ntDogpbEbQBq/WIKZjPPiTpARWx+88/EIj+0UkHPnEvcuVGqWtkIe+dT4a0N2xfil\n8+zZPzBXTIZ2COyLlJ+ye7X9FvnZXLMDe4C247ExjX3JpLVpqdX+ZHgzze7vOVO+\n0fipZMiR+sz5Z9ldSDMkd9gDkg==\n-----END PRIVATE KEY-----\n', 'client_email': '383307907019-e6mpmmj8j93borqh0tq5885ro6t2bqg2@developer.gserviceaccount.com', 'type': 'service_account', 'private_key_id': 'a348c1bc1c129bc9fbef6a1a6b8144a802a722d5'}
         scope = ['https://spreadsheets.google.com/feeds']
-
-        credentials = SignedJwtAssertionCredentials(json_key['client_email'], bytes(json_key['private_key'], 'utf-8'), scope)
+        credentials = SignedJwtAssertionCredentials(json_key['client_email'], json_key['private_key'].encode(), scope)
         gc = gspread.authorize(credentials)
-
         wks = gc.open(sheetName)
+
 
         # Opening the 3 worksheets from the spreadsheet
         self.shtSum = wks.worksheet("Summary")
@@ -57,6 +64,8 @@ class CurrentMouse:
         # Getting all training names and number of repetitions
         self.trainingList = self.shtTrain.col_values(1)
         self.trainingListRep = self.shtTrain.col_values(2)
+
+        self.openLocalData()
 
     def addMouseGoogle(self, tagRFID, mouseName, age):
         """ This function allows to add a new mouse to the Google Spread Sheet
@@ -88,6 +97,8 @@ class CurrentMouse:
 
         self.shtHist.update_cell(1, numberOfMice*2-1, mouseName)    # Adding the mouse to the history worksheet
 
+        self.localData[tagRFID] = 0        # update local data, last training stamp set at 0 so it can train immediately
+
 
     def getMouseInfo(self, tagRFID):
         """ This allows to fetch mouse information from the Google Spreadsheet
@@ -117,6 +128,26 @@ class CurrentMouse:
         else:
             return False
 
+    def canMouseTrainV2(self,tagRFID):
+
+        # Checking if the mouse exists
+        if (tagRFID in self.localData):
+            # Checking if the mouse is allowed to train
+            print(time.time()-float(self.localData[tagRFID]))
+            if (time.time()-float(self.localData[tagRFID])) > 20:
+                return True
+            else:
+                return False
+
+        else:
+            print("Mouse doesn't exist!")
+            return False
+
+    def updateWaterDeliveryTime(self):
+        self.shtSum.update_cell(self.cmCell.row, 10, time.time())
+
+
+
     def updateMouseInfo(self, realTrainingTime=0):
         """ This allows to update the different worksheet once training is over
         :return: none
@@ -144,7 +175,8 @@ class CurrentMouse:
         updateCellList[1].value = totalTimeStr                                  # Training time
         updateCellList[2].value = float(self.cmInfo[7]) + float(self.trInfo[4])     # Approximate distance
         updateCellList[3].value = int(self.cmInfo[8]) + 1                       # Total number of trainings
-        updateCellList[4].value = int(time.time())                              # Epoch time to check if mouse can train
+        updateTime = time.time()
+        updateCellList[4].value = int(updateTime)                              # Epoch time to check if mouse can train
         # Updating the google sheet
         self.shtSum.update_cells(updateCellList)
 
@@ -164,3 +196,17 @@ class CurrentMouse:
             updateCellList[2].value = newTraining[1]
 
             self.shtSum.update_cells(updateCellList)
+
+        self.localData[self.cmInfo[2]] = updateTime
+
+
+    def openLocalData(self):
+        localRFID = self.shtSum.col_values(3)       # Get all RFID tags
+        localTime = self.shtSum.col_values(10)
+        localRFID[:] = (value for value in localRFID if value != '')    # Remove empty cells
+        localTime[:] = (value for value in localTime if value != '')
+        localRFID.pop(0)        # Remove the header text "RFID tag"
+        localTime.pop(0)
+
+        self.localData = dict(zip(localRFID,localTime))
+
