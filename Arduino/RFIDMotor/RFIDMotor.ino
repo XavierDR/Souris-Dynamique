@@ -221,9 +221,9 @@ void mouseReadyForTraining(){
               // The whole training was successful, motors are stopped and mouse is released
               setMotorSpeed(0);
               releasePistons();
-              serialFlush();
               sendPacket("EOTS");                  // End of Training Successfull
             }
+            serialFlush();
           }
         }
       }
