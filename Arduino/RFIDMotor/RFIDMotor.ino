@@ -216,12 +216,12 @@ void mouseReadyForTraining(){
               releasePistons();
               sendPacket("EOTS");                  // End of Training Successfull
             }
-            serialFlush();
           }
         }
       }
     }
   }
+  serialFlush();
 }
 
 // Moves the linear motor to advance or take back the sweet water dispenser. Advancing
