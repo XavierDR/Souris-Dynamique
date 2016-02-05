@@ -80,7 +80,7 @@ class CurrentMouse:
         numberOfMice = int(self.shtSum.cell(1, 2).value)+1
 
         # We need to add info on the range A# to I#
-        cellRange = 'A' + str(numberOfMice + 3) + ':I' + str(numberOfMice + 3)
+        cellRange = 'A' + str(numberOfMice + 3) + ':J' + str(numberOfMice + 3)
 
         # Updating cells
         updateCellList = self.shtSum.range(cellRange)
@@ -93,6 +93,7 @@ class CurrentMouse:
         updateCellList[6].value = "00:00:00:00"             # Total training time
         updateCellList[7].value = 0                         # Total training distance
         updateCellList[8].value = 0                         # Total number of trainings
+        updateCellList[9].value = 0
         self.shtSum.update_cells(updateCellList)            # UPDATING ALL RANGE
 
         self.shtHist.update_cell(1, numberOfMice*2-1, mouseName)    # Adding the mouse to the history worksheet

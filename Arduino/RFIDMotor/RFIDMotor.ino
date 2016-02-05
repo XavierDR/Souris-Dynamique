@@ -55,7 +55,6 @@ void setup() {
 }
 
 void loop() {
-   digitalWrite(13, LOW);
 
   // Checking if it receives input from physical serial port (RFID)
   if (Serial1.available() > 0){     //Read RF-ID output
@@ -66,13 +65,8 @@ void loop() {
   if(Serial.available() > 0){       // Checks to see if there is any computer input;
     msg = Serial.read();
     
-    if (msg == 'a'){
-      digitalWrite(m0, LOW);  
-      digitalWrite(m1, LOW);
-    }
-    else if(msg =='b'){
-      digitalWrite(m0, HIGH);
-      digitalWrite(m1, LOW);
+    if (msg == 'W'){
+      fillWaterPump();
     }
     else if(msg == 'c'){
       addMouse();
@@ -183,7 +177,6 @@ void idMice(){
 // boolean that is sent after 'M' in the packet. In then read the speed and time values
 // and trains the mouse according to those.
 void mouseReadyForTraining(){
-  digitalWrite(13, HIGH);
   int code = Serial.parseInt();
   if (code == 1){         // The mouse can start its training
   releaseWater();
@@ -235,7 +228,8 @@ void mouseReadyForTraining(){
 // it makes it available from drinking. The motor is taken back after 2 seconds
 void releaseWater(){
   analogWrite(linearMotor, 125);
-  activateWater(4);
+  delay(1500);
+  activateWater(6);
   analogWrite(linearMotor, 25);
 }
 
@@ -277,28 +271,24 @@ void setMotorSpeed(int motorSpeed){
       break;
     
     case 1:
-      digitalWrite(13, HIGH);
       digitalWrite(rev, LOW);
       digitalWrite(m0, LOW);
       digitalWrite(m1, LOW);
       break;
 
     case 2:
-      digitalWrite(13, LOW);
       digitalWrite(rev, LOW);
       digitalWrite(m0, LOW);
       digitalWrite(m1, HIGH);
       break;
 
     case 3:
-      digitalWrite(13, HIGH);
       digitalWrite(rev, LOW);
       digitalWrite(m0, HIGH);
       digitalWrite(m1, HIGH);
       break;
 
     case 4:
-      digitalWrite(13, LOW);
       digitalWrite(rev, LOW);
       digitalWrite(m0, HIGH);
       digitalWrite(m1, LOW);
@@ -314,9 +304,22 @@ void activateWater(int nbGouttes)
   float timestart=millis();
   while(millis()<timestart+(1550*nbGouttes)) // Correspond à la distribution de 4 gouttes (Peut être changer selon ce qu'on veut donner au souris)
   {
-    analogWrite(8,200);
-    delay(50);
+    analogWrite(8,100);
+    delay(100);
     analogWrite(8,0);
-    delay(1500);
+    delay(750);
   }
 }
+
+
+void fillWaterPump()
+{
+  char code = Serial.parseInt();
+  if (code == 0){
+    analogWrite(8,0);
+  }
+  else if (code == 1){
+    analogWrite(8,255);
+  }
+}
+
