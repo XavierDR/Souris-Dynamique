@@ -221,9 +221,9 @@ void mouseReadyForTraining(){
               // The whole training was successful, motors are stopped and mouse is released
               setMotorSpeed(0);
               releasePistons();
-              serialFlush();
               sendPacket("EOTS");                  // End of Training Successfull
             }
+            serialFlush();
           }
         }
       }
@@ -235,7 +235,7 @@ void mouseReadyForTraining(){
 // it makes it available from drinking. The motor is taken back after 2 seconds
 void releaseWater(){
   analogWrite(linearMotor, 125);
-  releaseWater(4);
+  activateWater(4);
   analogWrite(linearMotor, 25);
 }
 
@@ -309,7 +309,7 @@ void setMotorSpeed(int motorSpeed){
 // Fonction de distribution de l'eau
 // Prend en argument le nombre de gouttes que l'on veut donner à la souris
 // Aucun retour
-void releaseWater(int nbGouttes)
+void activateWater(int nbGouttes)
 {
   float timestart=millis();
   while(millis()<timestart+(1550*nbGouttes)) // Correspond à la distribution de 4 gouttes (Peut être changer selon ce qu'on veut donner au souris)
