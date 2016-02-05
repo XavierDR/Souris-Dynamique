@@ -124,7 +124,7 @@ class CurrentMouse:
     def canMouseTrain(self):
         # Checking if the mouse is allowed to train
         print(time.time()-float(self.cmInfo[9]))
-        if (time.time()-float(self.cmInfo[9])) > 20:
+        if (time.time()-float(self.cmInfo[9])) > 60:
             return True
         else:
             return False

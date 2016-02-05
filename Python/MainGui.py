@@ -88,10 +88,23 @@ class MainGui(QWidget):
         self.cancelBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.cancelBtn, 2, 1)
 
+        # Fill Water button
+        self.fillWaterBtn = QPushButton('Fill Water')
+        self.fillWaterBtn.clicked.connect(self.fillWater)
+        self.fillWaterBtn.setMaximumHeight(35)
+        self.mainLayout.addWidget(self.fillWaterBtn, 1, 3)
+
+        # Stop water button
+        self.fillWaterBtn = QPushButton('Stop Water')
+        self.fillWaterBtn.clicked.connect(self.stopWater)
+        self.fillWaterBtn.setMaximumHeight(35)
+        self.mainLayout.addWidget(self.fillWaterBtn, 2, 3)
+
 
         self.setWindowTitle("Mouse adding")
         self.setGeometry(200, 200, 400, 200)
         self.show()
+
 
     def addMouse(self):
         """  Callback function for the add mouse button. This function
@@ -129,6 +142,20 @@ class MainGui(QWidget):
         self.ard.closeSerial()
         QCoreApplication.instance().quit()
 
+    def fillWater(self):
+        """ Callback function for the 'Fill water' button
+        :return: None
+        """
+        self.ard.writePort('W1')
+        self.messageLabel.setText('Filling water tube...')
+
+    def stopWater(self):
+        """ Callback function for the 'Stop water' button
+        :return: None
+        """
+        self.ard.writePort('W0')
+        self.messageLabel.setText('Water stopped')
+
 
 class ReadThread(QThread):
     def __init__(self, spreadsheet, ard):
@@ -148,11 +175,14 @@ class ReadThread(QThread):
                 self.ard.ser.flush()            # Flush the input buffer
                 if msg[0] is '1' and msg[1] is '.':   # It's an RFID tag
                     #TODO: REMOVE THOSE DEBUGGING LINES
-                    print("Fetching google info")
-                    mouse = self.sps.getMouseInfo(msg)
-                    print("Checking if mouse can train")
-                    trainingAllowed = self.sps.canMouseTrain()
-                    print("checked")
+                    print("Fetching google info...")
+                    try:
+                        mouse = self.sps.getMouseInfo(msg)
+                        print("Checking if mouse can train")
+                        trainingAllowed = self.sps.canMouseTrain()
+                    except:
+                        print('The scanned mouse doesnt exist')
+                        
                     if mouse is True:
                         print('Mouse exists')
                         #TODO: send infos to the arduino
@@ -166,13 +196,11 @@ class ReadThread(QThread):
                             self.sps.updateWaterDeliveryTime()
 
                         else:
-                            packet = 'M0V' \
-                                 + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
+                            packet = 'M0' 
                             print(packet)
                             self.ard.writePort(packet)
 
                     else:
-                        print("Mouse doesn't exist")
                         self.ard.writePort('M0')
 
                 if msg == "EOTS":

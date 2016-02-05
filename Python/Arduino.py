@@ -8,14 +8,19 @@ Created on Sun Sep 27 15:49:30 2015
 import serial
 import MainGui
 import time
+import sys
 
 class Arduino():
     def __init__(self):
         """ Constructor for the Arduino object
         :return: None
         """
-        
-        self.ser = serial.Serial('/dev/ttyACM0', 9600)
+        try:
+            self.ser = serial.Serial('/dev/ttyACM0', 9600)
+        except:
+            print('Cannot open serial port \n Please reconnect the arduino usb cable to the Raspberry Pi')
+            sys.exit(0)
+            
         self.isa = False;
         
     def serialCom(self):
