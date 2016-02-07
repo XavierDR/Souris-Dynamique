@@ -174,19 +174,15 @@ class ReadThread(QThread):
                 msg = self.ard.readPort()       # Read what's in the input buffer
                 self.ard.ser.flush()            # Flush the input buffer
                 if msg[0] is '1' and msg[1] is '.':   # It's an RFID tag
-                    #TODO: REMOVE THOSE DEBUGGING LINES
                     print("Fetching google info...")
                     try:
                         mouse = self.sps.getMouseInfo(msg)
-                        print("Checking if mouse can train")
+                        print("Mouse exists. Checking if mouse can train")
                         trainingAllowed = self.sps.canMouseTrain()
                     except:
                         print('The scanned mouse doesnt exist')
                         
                     if mouse is True:
-                        print('Mouse exists')
-                        #TODO: send infos to the arduino
-                        #TODO: TEST THIS SHIT OUT, DIDN'T TEST IT AT ALL
 
                         if trainingAllowed is True:
                             packet = 'M1V' \
@@ -206,7 +202,9 @@ class ReadThread(QThread):
                 if msg == "EOTS":
                     print("Training was successful")
                     self.sps.updateMouseInfo()
-                    self.ard.ser.flush()
+
+                # TODO: VERIFY IF THIS FLUSH GOES THERE OR SOMEWHERE ELSE
+                self.ard.ser.flush()
 
 
     def stop(self):
@@ -223,6 +221,7 @@ def main():
     worksheetName = "InterfaceSouris"
     arduino = Arduino.Arduino()
     spreadsheet.spreadsheetOpen(jsonName, worksheetName)
+    spreadsheet.openLocalData()         # Used for RFID and time stamp verification
 
     x = ReadThread(spreadsheet, arduino)
     gui = MainGui(spreadsheet, x, arduino)

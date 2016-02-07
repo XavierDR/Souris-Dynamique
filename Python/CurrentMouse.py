@@ -75,31 +75,34 @@ class CurrentMouse:
         :return: none
         """
 
-        # The total number of mice is necessary to add the new mouse to the good line in the Google Sheet
-        # This total number of mice is calculated inside the google spreadsheet
-        numberOfMice = int(self.shtSum.cell(1, 2).value)+1
 
-        # We need to add info on the range A# to I#
-        cellRange = 'A' + str(numberOfMice + 3) + ':J' + str(numberOfMice + 3)
+        if tagRFID in self.localData:
+            print("Mouse already exists. If you want to replace it, please delete data manually")
+        else:
+            # The total number of mice is necessary to add the new mouse to the good line in the Google Sheet
+            # This total number of mice is calculated inside the google spreadsheet
+            numberOfMice = int(self.shtSum.cell(1, 2).value)+1
 
-        # Updating cells
-        updateCellList = self.shtSum.range(cellRange)
-        updateCellList[0].value = mouseName                 # Mouse name (from GUI)
-        updateCellList[1].value = age                       # Mouse age (from GUI)
-        updateCellList[2].value = tagRFID                   # Mouse RFID tag (from GUI)
-        updateCellList[3].value = self.trainingList[1]      # New mouse = first training
-        updateCellList[4].value = self.trainingListRep[1]   # Number of repetitions of the first training
-        updateCellList[5].value = self.trainingListRep[1]   # Number of repetitions remaining = total number of reps)
-        updateCellList[6].value = "00:00:00:00"             # Total training time
-        updateCellList[7].value = 0                         # Total training distance
-        updateCellList[8].value = 0                         # Total number of trainings
-        updateCellList[9].value = 0
-        self.shtSum.update_cells(updateCellList)            # UPDATING ALL RANGE
+            # We need to add info on the range A# to I#
+            cellRange = 'A' + str(numberOfMice + 3) + ':J' + str(numberOfMice + 3)
 
-        self.shtHist.update_cell(1, numberOfMice*2-1, mouseName)    # Adding the mouse to the history worksheet
+            # Updating cells
+            updateCellList = self.shtSum.range(cellRange)
+            updateCellList[0].value = mouseName                 # Mouse name (from GUI)
+            updateCellList[1].value = age                       # Mouse age (from GUI)
+            updateCellList[2].value = tagRFID                   # Mouse RFID tag (from GUI)
+            updateCellList[3].value = self.trainingList[1]      # New mouse = first training
+            updateCellList[4].value = self.trainingListRep[1]   # Number of repetitions of the first training
+            updateCellList[5].value = self.trainingListRep[1]   # Number of repetitions remaining = total number of reps)
+            updateCellList[6].value = "00:00:00:00"             # Total training time
+            updateCellList[7].value = 0                         # Total training distance
+            updateCellList[8].value = 0                         # Total number of trainings
+            updateCellList[9].value = 0
+            self.shtSum.update_cells(updateCellList)            # UPDATING ALL RANGE
 
-        self.localData[tagRFID] = 0        # update local data, last training stamp set at 0 so it can train immediately
+            self.shtHist.update_cell(1, numberOfMice*2-1, mouseName)    # Adding the mouse to the history worksheet
 
+            self.localData[tagRFID] = 0        # update local data, last training stamp set at 0 so it can train immediately
 
     def getMouseInfo(self, tagRFID):
         """ This allows to fetch mouse information from the Google Spreadsheet
