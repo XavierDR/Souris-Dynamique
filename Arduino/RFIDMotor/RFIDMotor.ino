@@ -12,8 +12,8 @@ int souris3 [12];
 int i=0;
 
 // Sensor variables
-int button1 = 11;
-int button2 = 12;
+int button1 = A1;
+int button2 = A3;
 
 // Relay variables
 int relay1= 39;   // Blanc
@@ -24,7 +24,7 @@ int linearMotor = 10;
 
 
 void setup() {
-  Serial1.begin(9600);
+  Serial1 .begin(9600);
   Serial.begin(9600);
 
   // Motor initializations
@@ -56,7 +56,7 @@ void setup() {
 
 void loop() {
 
-  // Checking if it receives input from physical serial port (RFID)
+  // Checking if it receives input from physical serial port ()
   if (Serial1.available() > 0){     //Read RF-ID output
     idMice();
   }
