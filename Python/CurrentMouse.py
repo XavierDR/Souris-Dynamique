@@ -75,6 +75,9 @@ class CurrentMouse:
         :return: none
         """
 
+        # Getting all training names and number of repetitions in case of updates to training list
+        self.trainingList = self.shtTrain.col_values(1)
+        self.trainingListRep = self.shtTrain.col_values(2)
 
         if tagRFID in self.localData:
             print("Mouse already exists. If you want to replace it, please delete data manually")
@@ -109,24 +112,31 @@ class CurrentMouse:
         :param tagRFID: The RFID tag of the mouse currently on the treadmill
         :return: none
         """
+        print("Getting mouse info from Google Sheets")
+        
         # Making sure the mouse exists
         try:
             self.cmCell = self.shtSum.find(tagRFID)    # Find cell containing the RFID tag of the current mouse
         except:
-            return False
+            return 0
 
         # Getting information in the row corresponding to the current mouse
         self.cmInfo = self.shtSum.row_values(self.cmCell.row)  # Fetch info for the current mouse
         training = self.cmInfo[3]
 
-        # Getting information corresponding to the training of the current mouse
-        self.trCell = self.shtTrain.find(training)  # This returns the cell containing training name text
-        self.trInfo = self.shtTrain.row_values(self.trCell.row)
-        return True
+        try:
+            # Getting information corresponding to the training of the current mouse
+            self.trCell = self.shtTrain.find(training)  # This returns the cell containing training name text
+            self.trInfo = self.shtTrain.row_values(self.trCell.row)
+            return 1
+        except:
+            print("Unable to find corresponding training. Check Google Sheets to fix the problem")
+            return -1
 
     def canMouseTrain(self):
+        print("Checking if timeout between training is over")
         # Checking if the mouse is allowed to train
-        print(time.time()-float(self.cmInfo[9]))
+        print("Time since last training:", time.time()-float(self.cmInfo[9]))
         if (time.time()-float(self.cmInfo[9])) > 60:
             return True
         else:
@@ -137,7 +147,7 @@ class CurrentMouse:
         # Checking if the mouse exists
         if (tagRFID in self.localData):
             # Checking if the mouse is allowed to train
-            print(time.time()-float(self.localData[tagRFID]))
+            print("Time since last training:", time.time()-float(self.localData[tagRFID]))
             if (time.time()-float(self.localData[tagRFID])) > 20:
                 return True
             else:
@@ -148,6 +158,7 @@ class CurrentMouse:
             return False
 
     def updateWaterDeliveryTime(self):
+        print("Updating water delivery time with epoch time")
         self.shtSum.update_cell(self.cmCell.row, 10, time.time())
 
 
@@ -156,6 +167,7 @@ class CurrentMouse:
         """ This allows to update the different worksheet once training is over
         :return: none
         """
+        print("Updating mouse info on the Google Sheets")
         # Updating worksheet Summary
         cellRange = 'F' + str(self.cmCell.row) + ':J' + str(self.cmCell.row)
         updateCellList = self.shtSum.range(cellRange)
@@ -213,4 +225,3 @@ class CurrentMouse:
         localTime.pop(0)
 
         self.localData = dict(zip(localRFID,localTime))
-

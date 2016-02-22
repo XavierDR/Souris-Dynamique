@@ -11,7 +11,9 @@ import serial
 import Arduino
 from CurrentMouse import CurrentMouse
 from threading import Thread
+import threading as threading
 import time
+import Queue
 
 
 class MainGui(QWidget):
@@ -19,7 +21,7 @@ class MainGui(QWidget):
         to add a mouse to the google worksheet
     """
 
-    def __init__(self, spreadsheet, readThread, arduino):
+    def __init__(self, spreadsheet, readThread, arduino, cancel, queue):
         """ MainGui constructor
         :param ard : Arduino object used to communicate
                      through serial port with data packets
@@ -31,6 +33,8 @@ class MainGui(QWidget):
         self.sps = spreadsheet
         self.createLayout()
         self.t = readThread
+        self.cancel = cancel
+        self.queue = queue
         self.t.start()
 
     def closeEvent(self, event):
@@ -84,7 +88,7 @@ class MainGui(QWidget):
 
         # Cancel button
         self.cancelBtn = QPushButton('Cancel')
-        self.cancelBtn.clicked.connect(self.closeWindow)
+        self.cancelBtn.clicked.connect(self.cancelBtnCallback)
         self.cancelBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.cancelBtn, 2, 1)
 
@@ -124,23 +128,26 @@ class MainGui(QWidget):
         self.palette.setColor(QPalette.Foreground, Qt.black)
         self.messageLabel.setPalette(self.palette)
         self.messageLabel.setText('Please scan the RFID tag on of new mouse...')
-        newTag = self.ard.addMouse()
+        self.cancel.start()
+        newTag = self.queue.get()
+        self.cancel.terminate()
         # Il devrait y avoir un retour du tag RFID de la souris ici
         self.messageLabel.setText('New mouse RFID: ' + str(newTag))
 
         self.sps.addMouseGoogle(newTag, name, age)
         self.t.restart()
-        self.t.start()
+        # self.t.start()
 
     def changeSpeed(self):
         self.ard.serialCom()
 
-    def closeWindow(self):
+    def cancelBtnCallback(self):
         """ Callback function for the 'Cancel button'
         :return: None
         """
-        self.ard.closeSerial()
-        QCoreApplication.instance().quit()
+        self.cancel.terminate()
+        #self.ard.closeSerial()
+        #QCoreApplication.instance().quit()
 
     def fillWater(self):
         """ Callback function for the 'Fill water' button
@@ -174,26 +181,28 @@ class ReadThread(QThread):
                 msg = self.ard.readPort()       # Read what's in the input buffer
                 self.ard.ser.flush()            # Flush the input buffer
                 if msg[0] is '1' and msg[1] is '.':   # It's an RFID tag
-                    print("Fetching google info...")
                     try:
                         mouse = self.sps.getMouseInfo(msg)
-                        print("Mouse exists. Checking if mouse can train")
-                        trainingAllowed = self.sps.canMouseTrain()
+                        if mouse is 1:
+                            trainingAllowed = self.sps.canMouseTrain()
+                            print('Training allowed: ', trainingAllowed and mouse)
+                        elif mouse is 0:
+                            print("The scanned mouse doesnt exist")
+                        
                     except:
                         print('The scanned mouse doesnt exist')
                         
-                    if mouse is True:
-
+                    if mouse is 1:
                         if trainingAllowed is True:
                             packet = 'M1V' \
                                  + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
-                            print(packet)
+                            print("Packet sent to Arduino: ", packet)
                             self.ard.writePort(packet)
                             self.sps.updateWaterDeliveryTime()
 
                         else:
                             packet = 'M0' 
-                            print(packet)
+                            print("Packet sent to Arduino: ", packet)
                             self.ard.writePort(packet)
 
                     else:
@@ -203,9 +212,6 @@ class ReadThread(QThread):
                     print("Training was successful")
                     self.sps.updateMouseInfo()
 
-                # TODO: VERIFY IF THIS FLUSH GOES THERE OR SOMEWHERE ELSE
-                self.ard.ser.flush()
-
 
     def stop(self):
         self.running = False
@@ -213,24 +219,67 @@ class ReadThread(QThread):
     def restart(self):
         self.running = True
 
+class addMouseThread(QThread):
+    def __init__(self, ard, q):
+        QThread.__init__(self)
+        self.ard = ard
+        self.q = q
+        self.running = True
 
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        self.ard.ser.flush()
+        tag = ''
+        while self.running is True:
+            self.sleep(1)
+            if self.ard.ser.inWaiting() > 0:
+                tag = self.ard.readPort()
+                print("@")
+                tag = str(tag)
+                print(tag)
+            
+                if tag is not '':
+                    self.running = False
+                    break
+                
+                self.q.put(tag)
+                self.ard.ser.flush()
+            
+    def stop(self):
+        self.running = False
+
+    def restart(self):
+        self.running = True
+
+        
 def main():
     a = QApplication(sys.argv)
     spreadsheet = CurrentMouse()
     jsonName = 'SourisDynamique-a348c1bc1c12.json'
     worksheetName = "InterfaceSouris"
     arduino = Arduino.Arduino()
-    spreadsheet.spreadsheetOpen(jsonName, worksheetName)
-    spreadsheet.openLocalData()         # Used for RFID and time stamp verification
 
-    x = ReadThread(spreadsheet, arduino)
-    gui = MainGui(spreadsheet, x, arduino)
-    localMouseInfo = dict()
-    print('1')
-    a.exec_()
+    try:
+        print("Connecting to Google SpreadSheet...")
+        spreadsheet.spreadsheetOpen(jsonName, worksheetName)
+        print("Creating local data...")
+        spreadsheet.openLocalData()         # Used for RFID and time stamp verification
+        x = ReadThread(spreadsheet, arduino)
+        queue = Queue.Queue()
+        cancel = addMouseThread(arduino, queue)
+        print("Creating GUI...")
+        gui = MainGui(spreadsheet, x, arduino, cancel, queue)
+        localMouseInfo = dict()
+        print('Program is ready')
+        a.exec_()
+    except:
+        print("Error: Unable to open spreadsheet")
+
 
     # sys.exit(a.exec_())
-    print('2')
+    print('Program terminated')
 
 
 #    a.exec()
