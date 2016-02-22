@@ -179,7 +179,7 @@ void idMice(){
 void mouseReadyForTraining(){
   int code = Serial.parseInt();
   if (code == 1){         // The mouse can start its training
-  releaseWater();
+  releaseWaterV2(8);                    // Indicate number of droplets/increments
     if(Serial.available() > 0){
       char msg = Serial.read();
       if (msg == 'V'){
@@ -231,6 +231,22 @@ void releaseWater(){
   delay(1500);
   activateWater(6);
   analogWrite(linearMotor, 25);
+}
+
+void releaseWaterV2(int nbGouttes){
+  int increment = 255/nbGouttes;
+  int value = 0;
+  for(int x = 0 ; x < nbGouttes ; x++)
+  {
+    value = 255 - x*increment;
+    analogWrite(linearMotor,value);
+    delay(1000);
+    analogWrite(8,100);
+    delay(100);
+    analogWrite(8,0);
+  }
+
+  analogWrite(linearMotor,0);
 }
 
 // Releases the pistons to untrap the mouse after a training or if something goes wrong.

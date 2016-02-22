@@ -118,7 +118,7 @@ class CurrentMouse:
         # Getting information in the row corresponding to the current mouse
         self.cmInfo = self.shtSum.row_values(self.cmCell.row)  # Fetch info for the current mouse
         training = self.cmInfo[3]
-
+        # TODO: TRY CATCH THIS
         # Getting information corresponding to the training of the current mouse
         self.trCell = self.shtTrain.find(training)  # This returns the cell containing training name text
         self.trInfo = self.shtTrain.row_values(self.trCell.row)
