@@ -72,6 +72,14 @@ class Arduino():
             message = str(message)
             print(message)
             return message
+        
+    def troll(self, cancelled):
+        while not cancelled:
+            message = ''
+            message = self.ser.readline()[:-2]
+            message = str(message)
+            print(message)
+            return message
 
         
     def writePort(self, packet):
