@@ -21,7 +21,7 @@ class Arduino():
             print('Cannot open serial port \n Please reconnect the arduino usb cable to the Raspberry Pi')
             sys.exit(0)
             
-        self.isa = False;
+        self.isAdd = False;
         
     def serialCom(self):
         """ Old function used to debug
