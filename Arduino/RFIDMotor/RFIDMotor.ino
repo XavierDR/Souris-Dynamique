@@ -242,7 +242,7 @@ void releaseWaterV2(int nbGouttes){
     analogWrite(linearMotor,value);
     delay(1000);
     analogWrite(8,100);
-    delay(100);
+    delay(90);
     analogWrite(8,0);
   }
 
