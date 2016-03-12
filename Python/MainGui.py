@@ -76,7 +76,7 @@ class MainGui(QWidget):
         self.mainLayout.addWidget(self.nameLineEdit, 1, 0)
 
         # Age
-        self.ageLineEdit = QLineEdit("Enter the age")
+        self.ageLineEdit = QLineEdit("Enter the age here")
         self.ageLineEdit.setMaximumHeight(25)
         self.mainLayout.addWidget(self.ageLineEdit, 1, 1)
 
