@@ -67,7 +67,7 @@ class MainGui(QWidget):
 
         self.messageLabel = QLabel("Waiting for a mouse to be added")
         self.setMaximumHeight(25)
-        self.mainLayout.addWidget(self.messageLabel, 3, 0, 1, 2)
+        self.mainLayout.addWidget(self.messageLabel, 4, 0, 1, 2)
 
         # Line edits
         # Mouse name
@@ -92,6 +92,13 @@ class MainGui(QWidget):
         self.cancelBtn.clicked.connect(self.cancelBtnCallback)
         self.cancelBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.cancelBtn, 2, 1)
+
+        # Emergency stop button
+        self.emergencyBtn = QPushButton('Emergency stop')
+        self.emergencyBtn.clicked.connect(self.emergencyBtnCallback)
+        self.emergencyBtn.setMaximumHeight(35)
+        self.emergencyBtn.setStyleSheet('background-color: rgb(243, 77, 77);')
+        self.mainLayout.addWidget(self.emergencyBtn, 3, 0, 1, 3)
 
         # Fill Water button
         self.fillWaterBtn = QPushButton('Fill Water')
@@ -180,8 +187,15 @@ class MainGui(QWidget):
         :return: None
         """
         print('Mouse adding cancelled')
-        self.mouseAdded = True
         self.t.setAddMouse(False)
+
+    def emergencyBtnCallback(self):
+        """ Callback function for the 'Emergence stop' button'
+            Sends a packet to the Arduino to stop the current training
+            when the button is pushed
+        :return: None
+        """
+        self.t.setEmergency(True)
 
     def fillWater(self):
         """ Callback function for the 'Fill water' button
@@ -202,6 +216,7 @@ class ReadThread(QThread):
     def __init__(self, spreadsheet, ard, queue):
         QThread.__init__(self)
         self.running = True
+        self.emergency = False
         self.sps = spreadsheet
         self.ard = ard
         self.isAddMouse = False
@@ -213,6 +228,11 @@ class ReadThread(QThread):
     def run(self):
         while self.running is True:
             self.sleep(1)
+            if self.emergency is True:
+                print('There is an emergency')
+                self.ard.writePort('Q')
+                self.emergency = False
+            
             if self.ard.ser.inWaiting() > 0:    # If the input buffer isn't empty
                 msg = self.ard.readPort()       # Read what's in the input buffer
                 self.ard.ser.flush()            # Flush the input buffer
@@ -265,6 +285,8 @@ class ReadThread(QThread):
                     print("Training was successful")
                     self.sps.updateMouseInfo()
 
+                self.ard.ser.flush()
+
 
     def stop(self):
         self.running = False
@@ -274,6 +296,9 @@ class ReadThread(QThread):
 
     def setAddMouse(self, val):
         self.isAddMouse = val
+
+    def setEmergency(self, val):
+        self.emergency = val
 
         
 def main():
@@ -287,12 +312,10 @@ def main():
         print("Connecting to Google SpreadSheet...")
         spreadsheet.spreadsheetOpen(jsonName, worksheetName)
         print("Creating local data...")
-        spreadsheet.openLocalData()         # Used for RFID and time stamp verification
         queue = Queue.Queue()
         x = ReadThread(spreadsheet, arduino, queue)
         print("Creating GUI...")
         gui = MainGui(spreadsheet, x, arduino, queue)
-        localMouseInfo = dict()
         print('Program is ready')
         a.exec_()
     except:
