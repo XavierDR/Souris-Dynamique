@@ -180,7 +180,7 @@ void idMice(){
 }
 
 // This function makes sure the mouse is ready for training by reading the confirmation
-// boolean that is sent after 'M' in the packet. In then read the speed and time values
+// boolean that is sent after 'M' in the packet. It then reads the speed and time values
 // and trains the mouse according to those.
 void mouseReadyForTraining(){
   int code = Serial.parseInt();
@@ -216,6 +216,10 @@ void mouseReadyForTraining(){
                   return;
                 }*/
                 elapsedTime = millis() - timer;
+                if (Serial.available() > 0){ // to be able to read the emergency stop packet
+                  if (Serial.read() == 'Q')
+                  break;
+                }
               }
               // The whole training was successful, motors are stopped and mouse is released
               setMotorSpeed(0);

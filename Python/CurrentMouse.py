@@ -137,8 +137,9 @@ class CurrentMouse:
     def canMouseTrain(self):
         print("Checking if timeout between training is over")
         # Checking if the mouse is allowed to train
-        print("Time since last training:", time.time()-float(self.cmInfo[9]))
-        if (time.time()-float(self.cmInfo[9])) > 60:
+        timeSinceLast = time.time()-float(self.cmInfo[9])
+        print("Time since last training:", timeSinceLast)
+        if timeSinceLast > self.timeoutTime:
             return True
         else:
             return False
@@ -149,7 +150,7 @@ class CurrentMouse:
         if (tagRFID in self.localData):
             # Checking if the mouse is allowed to train
             print("Time since last training:", time.time()-float(self.localData[tagRFID]))
-            if (time.time()-float(self.localData[tagRFID])) > 20:
+            if (time.time()-float(self.localData[tagRFID])) > self.timeoutTime:
                 return True
             else:
                 return False
@@ -218,11 +219,13 @@ class CurrentMouse:
 
 
     def openLocalData(self):
-        self.timeoutTime = self.shtSum.acell('D1').value
+
+        self.timeoutTime = float(self.shtSum.acell('D1').value)
         localRFID = self.shtSum.col_values(3)       # Get all RFID tags
         localTime = self.shtSum.col_values(10)
         localRFID[:] = (value for value in localRFID if value != '')    # Remove empty cells
         localTime[:] = (value for value in localTime if value != '')
+        localRFID.pop(0)        # Remove the Timeout between training text
         localRFID.pop(0)        # Remove the header text "RFID tag"
         localTime.pop(0)
 
