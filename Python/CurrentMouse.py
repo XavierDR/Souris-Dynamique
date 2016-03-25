@@ -34,6 +34,7 @@ class CurrentMouse:
         self.trainingList = ""
         self.trainingListRep = ""
         self.localData = ""
+        self.timeoutTime = ""
 
     def spreadsheetOpen(self, jsonName, sheetName):
         """
@@ -217,6 +218,7 @@ class CurrentMouse:
 
 
     def openLocalData(self):
+        self.timeoutTime = self.shtSum.acell('D1').value
         localRFID = self.shtSum.col_values(3)       # Get all RFID tags
         localTime = self.shtSum.col_values(10)
         localRFID[:] = (value for value in localRFID if value != '')    # Remove empty cells
