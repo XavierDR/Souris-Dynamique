@@ -143,8 +143,17 @@ class MainGui(QWidget):
         self.testMot4Btn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.testMot4Btn, 5, 5)
         
+        # Activate linear motor
+        self.actLMBtn = QPushButton('Extend linear motor')
+        self.actLMBtn.clicked.connect(self.actLM)
+        self.actLMBtn.setMaximumHeight(35)
+        self.mainLayout.addWidget(self.actLMBtn, 1, 6)
 
-
+        # Retract linear motor
+        self.retLMBtn = QPushButton('Extend linear motor')
+        self.retLMBtn.clicked.connect(self.retLM)
+        self.retLMBtn.setMaximumHeight(35)
+        self.mainLayout.addWidget(self.retLMBtn, 1, 6)
 
         self.setWindowTitle("Mouse adding")
         self.setGeometry(200, 200, 400, 200)
@@ -258,6 +267,19 @@ class MainGui(QWidget):
         self.ard.writePort(speedStr)
         self.messageLabel.setText('Motor set to speed ' + str(speed))
 
+    def actLM(self):
+        """ Callback function for the 'Activate linear motor' button
+        :return:
+        """
+        self.ard.writePort('L1')
+        self.messageLabel.setText('Linear motor extended')
+
+    def actLM(self):
+        """ Callback function for the 'Activate linear motor' button
+        :return:
+        """
+        self.ard.writePort('L0')
+        self.messageLabel.setText('Linear motor retracted')
 
 class ReadThread(QThread):
     def __init__(self, spreadsheet, ard, queue):

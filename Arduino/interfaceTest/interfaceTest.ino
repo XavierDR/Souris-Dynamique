@@ -80,6 +80,9 @@ void loop() {
     else if (msg == 'T') {
       motorTest();
     }
+    else if (msg == 'L') {
+      linearMotorTest();
+    }
   }
 }
 
@@ -242,10 +245,12 @@ void releaseWater() {
 void releaseWaterV2(int nbGouttes) {
   int increment = 255 / nbGouttes;
   int value = 0;
-  for (int x = 0 ; x < nbGouttes ; x++)
+  analogWrite(linearMotor, 255);
+  delay(3000);
+  
+  for (int x = 1 ; x < nbGouttes ; x++)
   {
     value = 255 - x * increment;
-    analogWrite(linearMotor, value);
     delay(1000);
     analogWrite(8, 100);
     delay(90);
@@ -372,6 +377,17 @@ void motorTest() {
   }
   else if (code == 4) {
     setMotorSpeed(4);
+  }
+}
+
+
+void linearMotorTest() {
+  char code = Serial.parseInt();
+  if (code == 0) {
+    analogWrite(linearMotor, 0);
+  }
+  else if (code == 1) {
+    analogWrite(linearMotor, 255);
   }
 }
 
