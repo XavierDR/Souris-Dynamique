@@ -22,6 +22,7 @@ int relay2 = 38;  // Orange
 // Linear Motor variables
 int linearMotor = 10;
 
+int pumpMotor = 8;
 
 void setup() {
   Serial1 .begin(9600);
@@ -188,7 +189,7 @@ void idMice() {
 void mouseReadyForTraining() {
   int code = Serial.parseInt();
   if (code == 1) {        // The mouse can start its training
-    releaseWaterV2(8);                    // Indicate number of droplets/increments
+    releaseWaterV3(8);                    // Indicate number of droplets/increments
     if (Serial.available() > 0) {
       char msg = Serial.read();
       if (msg == 'V') {
@@ -233,6 +234,7 @@ void mouseReadyForTraining() {
   serialFlush();
 }
 
+// OLD FUNCTION - NO LONGER IN USE
 // Moves the linear motor to advance or take back the sweet water dispenser. Advancing
 // it makes it available from drinking. The motor is taken back after 2 seconds
 void releaseWater() {
@@ -242,6 +244,7 @@ void releaseWater() {
   analogWrite(linearMotor, 25);
 }
 
+// OLD FUNCTION - NO LONGER IN USE
 void releaseWaterV2(int nbGouttes) {
   int increment = 255 / nbGouttes;
   int value = 0;
@@ -252,13 +255,67 @@ void releaseWaterV2(int nbGouttes) {
   {
     value = 255 - x * increment;
     delay(1000);
-    analogWrite(8, 100);
+    analogWrite(pumpMotor, 100);
     delay(90);
-    analogWrite(8, 0);
+    analogWrite(pumpMotor, 0);
   }
 
   analogWrite(linearMotor, 0);
 }
+
+// Releases water in multiple increments. Allows button detection after first extension
+void releaseWaterV3(int nbGouttes) {
+  int increment = 255 / nbGouttes;  // Size of PWM for each increment
+  int value = 0;
+  int detection = 0;
+  unsigned long timer = millis();
+  
+  analogWrite(linearMotor, 255);
+  delay(2000);
+  
+  for (int x = 0 ; x < nbGouttes ; x++)
+  {
+    timer = millis();
+    unsigned long elapsedTime = 0;
+    while (elapsedTime < 1000) {
+      if ((digitalRead(button1) == HIGH && digitalRead(button2) == HIGH )){
+        activatePistons();
+        analogWrite(pumpMotor,0);
+        analogWrite(linearMotor, 0);
+        x = nbGouttes + 1;
+        detection = 1;
+        break;
+      }
+      elapsedTime = millis() - timer;
+    }
+
+    if( detection == 0){
+      analogWrite(pumpMotor, 100);
+      while (elapsedTime < 90) {
+        if ((digitalRead(button1) == HIGH && digitalRead(button2) == HIGH )){
+          activatePistons();
+          analogWrite(pumpMotor,0);
+          analogWrite(linearMotor, 0);
+          x = nbGouttes + 1;
+          detection = 1;
+          break;
+        }
+        elapsedTime = millis() - timer;
+      }
+
+      if( detection == 0){
+        analogWrite(pumpMotor, 0);
+        value = 255 - ((x+1) * increment);
+        analogWrite(linearMotor, 0);
+      }
+    }
+  }
+  
+  analogWrite(linearMotor, 0);
+}
+
+
+
 
 // Releases the pistons to untrap the mouse after a training or if something goes wrong.
 void releasePistons() {
@@ -331,9 +388,9 @@ void activateWater(int nbGouttes)
   float timestart = millis();
   while (millis() < timestart + (1550 * nbGouttes)) // Correspond à la distribution de 4 gouttes (Peut être changer selon ce qu'on veut donner au souris)
   {
-    analogWrite(8, 100);
+    analogWrite(pumpMotor, 100);
     delay(100);
-    analogWrite(8, 0);
+    analogWrite(pumpMotor, 0);
     delay(750);
   }
 }
@@ -343,10 +400,10 @@ void fillWaterPump()
 {
   char code = Serial.parseInt();
   if (code == 0) {
-    analogWrite(8, 0);
+    analogWrite(pumpMotor, 0);
   }
   else if (code == 1) {
-    analogWrite(8, 255);
+    analogWrite(pumpMotor, 255);
   }
 }
 
