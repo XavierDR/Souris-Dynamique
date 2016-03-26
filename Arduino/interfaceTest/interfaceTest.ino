@@ -289,6 +289,7 @@ void releaseWaterV3(int nbGouttes) {
       elapsedTime = millis() - timer;
     }
 
+    elapsedTime = 0;
     if( detection == 0){
       analogWrite(pumpMotor, 100);
       while (elapsedTime < 90) {
@@ -306,7 +307,7 @@ void releaseWaterV3(int nbGouttes) {
       if( detection == 0){
         analogWrite(pumpMotor, 0);
         value = 255 - ((x+1) * increment);
-        analogWrite(linearMotor, 0);
+        analogWrite(linearMotor, value);
       }
     }
   }
