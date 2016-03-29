@@ -295,14 +295,14 @@ class ReadThread(QThread):
                 self.emergency = False
             
             if self.ard.ser.inWaiting() > 0:    # If the input buffer isn't empty
-                msg = self.ard.readNow()       # Read what's in the input buffer
+                msg = self.ard.readPort()       # Read what's in the input buffer
                 self.ard.ser.flushInput()            # Flush the input buffer
                 if msg[0] is '1' and msg[1] is '.' and self.isAddMouse is False:   # It's an RFID tag
                     try:
                         mouse = self.sps.getMouseInfo(msg)
                         if mouse is 1:
                             trainingAllowed = self.sps.canMouseTrain()
-                            print('Training allowed: ', trainingAllowed and mouse)
+                            print('Training allowed: ' + str(trainingAllowed and mouse))
                         elif mouse is 0:
                             print("The scanned mouse doesnt exist")
                         
@@ -313,13 +313,13 @@ class ReadThread(QThread):
                         if trainingAllowed is True:
                             packet = 'M1V' \
                                  + str(self.sps.trInfo[3]) + 'T' + str(self.sps.trInfo[2])
-                            print("Packet sent to Arduino: ", packet)
+                            print("Packet sent to Arduino: " + str(packet))
                             self.ard.writePort(packet)
                             self.sps.updateWaterDeliveryTime()
 
                         else:
                             packet = 'M0' 
-                            print("Packet sent to Arduino: ", packet)
+                            print("Packet sent to Arduino: " + str(packet))
                             self.ard.writePort(packet)
 
                     else:
@@ -331,10 +331,10 @@ class ReadThread(QThread):
                     self.isAddMouse = False
                     if not self.q.empty():
                         age = self.q.get()
-                        print('Age: ', age)
+                        print('Age: ' + str(age))
                     if not self.q.empty():
                         name = self.q.get()
-                        print('Name: ', name)
+                        print('Name: ' + str(name))
 
                     if msg and name and age:
                        added = self.sps.addMouseGoogle(msg, name, age)

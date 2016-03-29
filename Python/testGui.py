@@ -153,7 +153,7 @@ class MainGui(QWidget):
         self.retLMBtn = QPushButton('Extend linear motor')
         self.retLMBtn.clicked.connect(self.retLM)
         self.retLMBtn.setMaximumHeight(35)
-        self.mainLayout.addWidget(self.retLMBtn, 1, 6)
+        self.mainLayout.addWidget(self.retLMBtn, 2, 6)
 
         self.setWindowTitle("Mouse adding")
         self.setGeometry(200, 200, 400, 200)

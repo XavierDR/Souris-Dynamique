@@ -140,7 +140,7 @@ class CurrentMouse:
         print("Checking if timeout between training is over")
         # Checking if the mouse is allowed to train
         timeSinceLast = time.time()-float(self.cmInfo[9])
-        print("Time since last training:", timeSinceLast)
+        print("Time since last training: " + str(timeSinceLast))
         if timeSinceLast > self.timeoutTime:
             return True
         else:
@@ -151,7 +151,7 @@ class CurrentMouse:
         # Checking if the mouse exists
         if (tagRFID in self.localData):
             # Checking if the mouse is allowed to train
-            print("Time since last training:", time.time()-float(self.localData[tagRFID]))
+            print("Time since last training:" + str(time.time()-float(self.localData[tagRFID])))
             if (time.time()-float(self.localData[tagRFID])) > self.timeoutTime:
                 return True
             else:
