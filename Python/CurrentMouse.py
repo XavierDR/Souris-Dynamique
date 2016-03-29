@@ -82,6 +82,7 @@ class CurrentMouse:
 
         if tagRFID in self.localData:
             print("Mouse already exists. If you want to replace it, please delete data manually")
+            return False
         else:
             # The total number of mice is necessary to add the new mouse to the good line in the Google Sheet
             # This total number of mice is calculated inside the google spreadsheet
@@ -107,6 +108,7 @@ class CurrentMouse:
             self.shtHist.update_cell(1, numberOfMice*2-1, mouseName)    # Adding the mouse to the history worksheet
 
             self.localData[tagRFID] = 0        # update local data, last training stamp set at 0 so it can train immediately
+            return True
 
     def getMouseInfo(self, tagRFID):
         """ This allows to fetch mouse information from the Google Spreadsheet

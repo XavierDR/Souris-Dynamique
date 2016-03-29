@@ -64,14 +64,20 @@ class Arduino():
         # TODO: Trouver une facon de mettre un vrai timeout sur readline
         print('Reading port...')
         self.ser.flush()
-        import time
-        timeout = time.time() + 5   # 5 minutes from now
         while True:
             message = ''
             message = self.ser.readline()[:-2]
             message = str(message)
             print(message)
             return message
+
+    def readNow(self):
+        message = ''
+        message = self.ser.readline()[:-2]
+        message = str(message)
+        print(message)
+        self.ser.flush()
+        return message
         
     def troll(self, cancelled):
         while not cancelled:
