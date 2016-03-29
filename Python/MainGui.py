@@ -21,7 +21,7 @@ class MainGui(QWidget):
         to add a mouse to the google worksheet
     """
 
-    def __init__(self, spreadsheet, readThread, arduino, queue):
+    def __init__(self, spreadsheet, readThread, arduino, queue, rfidQ):
         """ MainGui constructor
         :param ard : Arduino object used to communicate
                      through serial port with data packets
@@ -33,6 +33,7 @@ class MainGui(QWidget):
         self.sps = spreadsheet
         self.t = readThread
         self.queue = queue
+        self.rfidQueue = rfidQ
         self.t.start()
         self.mouseAdded = False
         self.createLayout()
@@ -43,7 +44,21 @@ class MainGui(QWidget):
         :param event: Type of close event (window closed here)
         :return: None
         """
-        self.ard.closeSerial()
+        quitMsg = 'Are you sure you want to quit the program? This will exit stop the cage from functionning correctly.'
+        reply = QMessageBox.question(self, 'Message', quitMsg, QMessageBox.Yes, QMessageBox.No)
+        #quitPopup = QMessageBox()
+        #quitPopup.setText(quitMsg)
+        #quiPopup.addButton(QPushButton('Yes'), QMessageBox.YesRole)
+        #quiPopup.addButton(QPushButton('No'), QMessageBox.noRole)
+
+        if reply == QMessageBox.Yes:
+            self.ard.closeSerial()
+            print('Accepting quit event, quitting..')
+            event.accept()
+
+        else:
+            event.ignore()
+        
 
     def createLayout(self):
         """
@@ -56,19 +71,33 @@ class MainGui(QWidget):
         self.palette = QPalette()
         self.palette.setColor(QPalette.Foreground, Qt.black)
 
+        # Vertical separator
+        self.vertSep = QFrame()
+        self.vertSep.setFrameStyle(QFrame.VLine)
+        self.vertSep.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.mainLayout.addWidget(self.vertSep, 0, 2, 5, 1)
+
         # Labels
+        # Name label
         self.nameLabel = QLabel('Name')
         self.nameLabel.setMaximumHeight(25)
         self.mainLayout.addWidget(self.nameLabel, 0, 0)
 
+        # Age label
         self.ageLabel = QLabel('Age')
         self.ageLabel.setMaximumHeight(25)
         self.mainLayout.addWidget(self.ageLabel, 0, 1)
 
-        self.messageLabel = QLabel("Waiting for a mouse to be added")
-        self.setMaximumHeight(25)
+        # Message label
+        self.messageLabel = QLabel("Program running normally")
+        self.messageLabel.setMaximumHeight(25)
         self.mainLayout.addWidget(self.messageLabel, 4, 0, 1, 2)
 
+        # Water control label
+        self.waterLabel = QLabel('Water tube controls')
+        self.waterLabel.setMaximumHeight(25)
+        self.mainLayout.addWidget(self.waterLabel, 0, 3, 1, 1)
+        
         # Line edits
         # Mouse name
         self.nameLineEdit = QLineEdit("Enter the name here")
@@ -98,10 +127,10 @@ class MainGui(QWidget):
         self.emergencyBtn.clicked.connect(self.emergencyBtnCallback)
         self.emergencyBtn.setMaximumHeight(35)
         self.emergencyBtn.setStyleSheet('background-color: rgb(243, 77, 77);')
-        self.mainLayout.addWidget(self.emergencyBtn, 3, 0, 1, 3)
+        self.mainLayout.addWidget(self.emergencyBtn, 3, 0, 1, 2)
 
         # Fill Water button
-        self.fillWaterBtn = QPushButton('Fill Water')
+        self.fillWaterBtn = QPushButton('Fill tube')
         self.fillWaterBtn.clicked.connect(self.fillWater)
         self.fillWaterBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.fillWaterBtn, 1, 3)
@@ -112,23 +141,26 @@ class MainGui(QWidget):
         self.fillWaterBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.fillWaterBtn, 2, 3)
 
-
+        # Main window initialisation
         self.setWindowTitle("Mouse adding")
-        self.setGeometry(200, 200, 400, 200)
+        self.setGeometry(200, 200, 500, 200)
         self.show()
 
     def addMouses(self):
         self.mouseAdded = False
         #QTimer.singleShot(0, self.addMouse)
+        resetMsgLabelThread = threading.Thread(target = self.resetMsgLabel, args=())
+        addMouseTimeout = threading.Thread(target = self.addMouseTimeoutCallback, args=())
         
         self.messageLabel.setPalette(self.palette)
         age = self.ageLineEdit.text()
         name = self.nameLineEdit.text()
-        if age == 'Enter the age' or name == 'Enter the name here':
+        if age == 'Enter the age here' or name == 'Enter the name here':
             self.palette.setColor(QPalette.Foreground, Qt.red)
             self.messageLabel.setPalette(self.palette)
             self.messageLabel.setText('Please enter valid a name and age')
             self.palette.setColor(QPalette.Foreground, Qt.black)
+            resetMsgLabelThread.start()
             return
         self.palette.setColor(QPalette.Foreground, Qt.black)
         self.messageLabel.setPalette(self.palette)
@@ -146,12 +178,15 @@ class MainGui(QWidget):
         #self.queue.put("Filler")
         #t1 = threading.Thread(target=self.addMouse, args=())
         #t1.start()
+        
+        addMouseTimeout.start()
         t2 = threading.Thread(target = self.cancelBtnCallback, args=())
         #t1.join()
 
         #self.messageLabel.setText('New mouse RFID: ' + str(self.newTag))
 
         self.mouseAdded = False
+
 
     def addMouse(self):
         """  Callback function for the add mouse button. This function
@@ -177,7 +212,26 @@ class MainGui(QWidget):
         
         #self.t.restart()
         # self.t.start()
-        
+
+    def addMouseTimeoutCallback(self):
+        timeout = 20;
+        self.palette.setColor(QPalette.Foreground, Qt.black)
+        self.messageLabel.setPalette(self.palette)
+        for i in range(20):
+            time.sleep(1)
+            if not self.rfidQueue.empty():
+                msg = self.rfidQueue.get()
+                if msg[0] is '1' and msg[1] is '.':
+                    self.messageLabel.setText('Mouse added : ' + str(msg))
+                elif msg is 'Fail':
+                    self.messageLabel.setText('No mouse was added, see console for details')
+                time.sleep(7)
+                self.messageLabel.setText('Program running normally')
+                return
+            self.messageLabel.setText('Please scan the mouse RFID: ' + str(timeout) + ' seconds left')
+            timeout-=1
+        self.t.setAddMouse(False)
+        self.messageLabel.setText('Program running normally')
 
     def changeSpeed(self):
         self.ard.serialCom()
@@ -186,7 +240,7 @@ class MainGui(QWidget):
         """ Callback function for the 'Cancel button'
         :return: None
         """
-        print('Mouse adding cancelled')
+        print('Mouse adding cancelled. No new mouse was added to the database.')
         self.t.setAddMouse(False)
 
     def emergencyBtnCallback(self):
@@ -204,6 +258,12 @@ class MainGui(QWidget):
         self.ard.writePort('W1')
         self.messageLabel.setText('Filling water tube...')
 
+    def resetMsgLabel(self):
+        time.sleep(10)
+        self.palette.setColor(QPalette.Foreground, Qt.black)
+        self.messageLabel.setPalette(self.palette)
+        self.messageLabel.setText('Waiting for a mouse to be added')
+
     def stopWater(self):
         """ Callback function for the 'Stop water' button
         :return: None
@@ -213,7 +273,7 @@ class MainGui(QWidget):
 
 
 class ReadThread(QThread):
-    def __init__(self, spreadsheet, ard, queue):
+    def __init__(self, spreadsheet, ard, queue, rfidQ):
         QThread.__init__(self)
         self.running = True
         self.emergency = False
@@ -221,6 +281,7 @@ class ReadThread(QThread):
         self.ard = ard
         self.isAddMouse = False
         self.q = queue
+        self.rfidQueue = rfidQ
 
     def __del__(self):
         self.wait()
@@ -234,8 +295,8 @@ class ReadThread(QThread):
                 self.emergency = False
             
             if self.ard.ser.inWaiting() > 0:    # If the input buffer isn't empty
-                msg = self.ard.readPort()       # Read what's in the input buffer
-                self.ard.ser.flush()            # Flush the input buffer
+                msg = self.ard.readNow()       # Read what's in the input buffer
+                self.ard.ser.flushInput()            # Flush the input buffer
                 if msg[0] is '1' and msg[1] is '.' and self.isAddMouse is False:   # It's an RFID tag
                     try:
                         mouse = self.sps.getMouseInfo(msg)
@@ -276,7 +337,11 @@ class ReadThread(QThread):
                         print('Name: ', name)
 
                     if msg and name and age:
-                       self.sps.addMouseGoogle(msg, name, age)
+                       added = self.sps.addMouseGoogle(msg, name, age)
+                       if added == True:
+                           self.rfidQueue.put(msg)
+                       else:
+                           self.rfidQueue.put('Fail')
                        self.ard.ser.flush()
                        self.q.queue.clear()
                     
@@ -285,7 +350,7 @@ class ReadThread(QThread):
                     print("Training was successful")
                     self.sps.updateMouseInfo()
 
-                self.ard.ser.flush()
+                self.ard.ser.flushInput()
 
 
     def stop(self):
@@ -313,9 +378,10 @@ def main():
         spreadsheet.spreadsheetOpen(jsonName, worksheetName)
         print("Creating local data...")
         queue = Queue.Queue()
-        x = ReadThread(spreadsheet, arduino, queue)
+        rfidQueue = Queue.Queue()
+        x = ReadThread(spreadsheet, arduino, queue, rfidQueue)
         print("Creating GUI...")
-        gui = MainGui(spreadsheet, x, arduino, queue)
+        gui = MainGui(spreadsheet, x, arduino, queue, rfidQueue)
         print('Program is ready')
         a.exec_()
     except:
