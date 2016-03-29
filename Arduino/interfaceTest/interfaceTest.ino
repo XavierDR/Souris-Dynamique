@@ -1,4 +1,4 @@
-// Motor variables
+li// Motor variables
 char msg;
 int rev = 48;   //Pin
 int m0 = 50;
@@ -8,7 +8,6 @@ int m1 = 52;
 int incomingByte = 0;
 const int DEFAULT_SIZE = 12;
 int mouse [] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int souris3 [12];
 int i = 0;
 
 // Sensor variables
@@ -42,6 +41,9 @@ void setup() {
 
   // Linear motor initialization
   pinMode(linearMotor, OUTPUT);
+
+  // Peristaltic motor initialization
+  pinMode(pumpMotor, OUTPUT);
 
   // Press buttons initialization
   pinMode(button1, INPUT);
@@ -93,7 +95,6 @@ void activatePistons() {
   delay(40);                  // To make sure the 2nd valve closes before valve 1 opens
   digitalWrite(relay1, HIGH);
 }
-
 
 // This function waits for and RFID tag to be scanned. It is made to add
 // a new mouse RFID tag by sending it to Python.
@@ -260,7 +261,7 @@ void releaseWaterV2(int nbGouttes) {
     analogWrite(pumpMotor, 0);
   }
 
-  analogWrite(linearMotor, 0);
+  analogWrite(linearMotor, 5);
 }
 
 // Releases water in multiple increments. Allows button detection after first extension
@@ -281,7 +282,7 @@ void releaseWaterV3(int nbGouttes) {
       if ((digitalRead(button1) == HIGH && digitalRead(button2) == HIGH )){
         activatePistons();
         analogWrite(pumpMotor,0);
-        analogWrite(linearMotor, 0);
+        analogWrite(linearMotor, 5);
         x = nbGouttes + 1;
         detection = 1;
         break;
@@ -296,7 +297,7 @@ void releaseWaterV3(int nbGouttes) {
         if ((digitalRead(button1) == HIGH && digitalRead(button2) == HIGH )){
           activatePistons();
           analogWrite(pumpMotor,0);
-          analogWrite(linearMotor, 0);
+          analogWrite(linearMotor, 5);
           x = nbGouttes + 1;
           detection = 1;
           break;
@@ -312,7 +313,7 @@ void releaseWaterV3(int nbGouttes) {
     }
   }
   
-  analogWrite(linearMotor, 0);
+  analogWrite(linearMotor, 5);
 }
 
 
@@ -442,7 +443,7 @@ void motorTest() {
 void linearMotorTest() {
   char code = Serial.parseInt();
   if (code == 0) {
-    analogWrite(linearMotor, 0);
+    analogWrite(linearMotor, 5);
   }
   else if (code == 1) {
     analogWrite(linearMotor, 255);
