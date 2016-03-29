@@ -274,7 +274,7 @@ class MainGui(QWidget):
         self.ard.writePort('L1')
         self.messageLabel.setText('Linear motor extended')
 
-    def actLM(self):
+    def retLM(self):
         """ Callback function for the 'Activate linear motor' button
         :return:
         """
