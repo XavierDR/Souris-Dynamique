@@ -131,13 +131,13 @@ class MainGui(QWidget):
 
         # Fill Water button
         self.fillWaterBtn = QPushButton('Fill tube')
-        self.fillWaterBtn.clicked.connect(self.fillWater)
+        self.fillWaterBtn.clicked.connect(self.fillWaterBtnCallback)
         self.fillWaterBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.fillWaterBtn, 1, 3)
 
         # Stop water button
         self.fillWaterBtn = QPushButton('Stop Water')
-        self.fillWaterBtn.clicked.connect(self.stopWater)
+        self.fillWaterBtn.clicked.connect(self.stopWaterBtnCallback)
         self.fillWaterBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.fillWaterBtn, 2, 3)
 
@@ -233,9 +233,6 @@ class MainGui(QWidget):
         self.t.setAddMouse(False)
         self.messageLabel.setText('Program running normally')
 
-    def changeSpeed(self):
-        self.ard.serialCom()
-
     def cancelBtnCallback(self):
         """ Callback function for the 'Cancel button'
         :return: None
@@ -251,7 +248,7 @@ class MainGui(QWidget):
         """
         self.t.setEmergency(True)
 
-    def fillWater(self):
+    def fillWaterBtnCallback(self):
         """ Callback function for the 'Fill water' button
         :return: None
         """
@@ -264,7 +261,7 @@ class MainGui(QWidget):
         self.messageLabel.setPalette(self.palette)
         self.messageLabel.setText('Waiting for a mouse to be added')
 
-    def stopWater(self):
+    def stopWaterBtnCallback(self):
         """ Callback function for the 'Stop water' button
         :return: None
         """
