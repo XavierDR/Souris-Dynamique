@@ -232,3 +232,4 @@ class CurrentMouse:
         localTime.pop(0)
 
         self.localData = dict(zip(localRFID,localTime))
+        print('Local data created')

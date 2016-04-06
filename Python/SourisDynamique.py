@@ -91,7 +91,8 @@ class MainGui(QWidget):
         # Message label
         self.messageLabel = QLabel("Program running normally")
         self.messageLabel.setMaximumHeight(25)
-        self.mainLayout.addWidget(self.messageLabel, 4, 0, 1, 2)
+        self.mainLayout.addWidget(self.messageLabel, 5, 0, 1, 2)
+        
 
         # Water control label
         self.waterLabel = QLabel('Water tube controls')
@@ -135,6 +136,12 @@ class MainGui(QWidget):
         self.fillWaterBtn.setMaximumHeight(35)
         self.mainLayout.addWidget(self.fillWaterBtn, 1, 3)
 
+        # Reload button
+        self.reloadBtn = QPushButton('Reload')
+        self.reloadBtn.clicked.connect(self.reloadCallback)
+        self.reloadBtn.setMaximumHeight(35)
+        self.mainLayout.addWidget(self.reloadBtn, 4, 0)
+
         # Stop water button
         self.fillWaterBtn = QPushButton('Stop Water')
         self.fillWaterBtn.clicked.connect(self.stopWater)
@@ -177,31 +184,6 @@ class MainGui(QWidget):
 
         self.mouseAdded = False
 
-
-    #def addMouse(self):
-     #   """  Callback function for the add mouse button. This function
-    #         updates the new informations in the worksheet
-    #    :return: None
-    #    """
-    #    print('In addMouse Callback!')
-    #    
-    #    
-    #    while self.mouseAdded is False:
-    #        time.sleep(0.5)
-    #        #qApp.processEvents()
-    #        #self.repaint()
-    #        try:
-    #            self.newTag = self.queue.get()
-    #        except:
-    #            print('Tag not found')
-    #        if self.newTag:
-    #            self.mouseAdded = True
-     #       if self.mouseAdded:
-    #            break
-
-        
-        #self.t.restart()
-        # self.t.start()
 
     def addMouseTimeoutCallback(self):
         timeout = 20;
@@ -258,6 +240,9 @@ class MainGui(QWidget):
             return True
         except ValueError:
             return False
+
+    def reloadCallback(self):
+        self.sps.openLocalData()
 
     def resetMsgLabel(self):
         time.sleep(7)
