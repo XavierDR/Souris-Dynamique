@@ -155,7 +155,7 @@ class MainGui(QWidget):
         self.messageLabel.setPalette(self.palette)
         age = self.ageLineEdit.text()
         name = self.nameLineEdit.text()
-        if age == 'Enter the age here' or name == 'Enter the name here':
+        if age is 'Enter the age here' or age is '' or name is 'Enter the name here' or name is '' or self.isNumber(age) is False:
             self.palette.setColor(QPalette.Foreground, Qt.red)
             self.messageLabel.setPalette(self.palette)
             self.messageLabel.setText('Please enter valid a name and age')
@@ -165,49 +165,39 @@ class MainGui(QWidget):
         self.palette.setColor(QPalette.Foreground, Qt.black)
         self.messageLabel.setPalette(self.palette)
         self.messageLabel.setText('Please scan the RFID tag of the new mouse...')
-        #self.cancel.start()
-        #newTag = self.queue.get()
-        #self.cancel.terminate()
-        # Il devrait y avoir un retour du tag RFID de la souris ici
         self.t.setAddMouse(True)
         
         time.sleep(0.1)
         self.queue.put(age)
         time.sleep(0.1)
         self.queue.put(name)
-        #self.queue.put("Filler")
-        #t1 = threading.Thread(target=self.addMouse, args=())
-        #t1.start()
-        
+
         addMouseTimeout.start()
         t2 = threading.Thread(target = self.cancelBtnCallback, args=())
-        #t1.join()
-
-        #self.messageLabel.setText('New mouse RFID: ' + str(self.newTag))
 
         self.mouseAdded = False
 
 
-    def addMouse(self):
-        """  Callback function for the add mouse button. This function
-             updates the new informations in the worksheet
-        :return: None
-        """
-        print('In addMouse Callback!')
-        
-        
-        while self.mouseAdded is False:
-            time.sleep(0.5)
-            #qApp.processEvents()
-            #self.repaint()
-            try:
-                self.newTag = self.queue.get()
-            except:
-                print('Tag not found')
-            if self.newTag:
-                self.mouseAdded = True
-            if self.mouseAdded:
-                break
+    #def addMouse(self):
+     #   """  Callback function for the add mouse button. This function
+    #         updates the new informations in the worksheet
+    #    :return: None
+    #    """
+    #    print('In addMouse Callback!')
+    #    
+    #    
+    #    while self.mouseAdded is False:
+    #        time.sleep(0.5)
+    #        #qApp.processEvents()
+    #        #self.repaint()
+    #        try:
+    #            self.newTag = self.queue.get()
+    #        except:
+    #            print('Tag not found')
+    #        if self.newTag:
+    #            self.mouseAdded = True
+     #       if self.mouseAdded:
+    #            break
 
         
         #self.t.restart()
@@ -242,6 +232,7 @@ class MainGui(QWidget):
         """
         print('Mouse adding cancelled. No new mouse was added to the database.')
         self.t.setAddMouse(False)
+        self.rfidQueue.put('Fail')
 
     def emergencyBtnCallback(self):
         """ Callback function for the 'Emergence stop' button'
@@ -258,8 +249,18 @@ class MainGui(QWidget):
         self.ard.writePort('W1')
         self.messageLabel.setText('Filling water tube...')
 
+    def isNumber(self, num):
+        """ Function to verify if the input string is a number
+        : return: Boolean
+        """
+        try:
+            int(num)
+            return True
+        except ValueError:
+            return False
+
     def resetMsgLabel(self):
-        time.sleep(10)
+        time.sleep(7)
         self.palette.setColor(QPalette.Foreground, Qt.black)
         self.messageLabel.setPalette(self.palette)
         self.messageLabel.setText('Waiting for a mouse to be added')
@@ -316,6 +317,7 @@ class ReadThread(QThread):
                             print("Packet sent to Arduino: " + str(packet))
                             self.ard.writePort(packet)
                             self.sps.updateWaterDeliveryTime()
+                            self.sleep(1)
 
                         else:
                             packet = 'M0' 
