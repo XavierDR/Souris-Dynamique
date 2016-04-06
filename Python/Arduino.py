@@ -23,21 +23,6 @@ class Arduino():
             
         self.isAdd = False;
         
-    def serialCom(self):
-        """ Old function used to debug
-        :return:
-        """
-        #TODO: Delete this function when not needed anymore
-        print('In serial COM')
-        if self.isa == False:
-            self.isa = True
-            print(self.isa)
-            self.ser.write(b'a')
-#            print('a')
-        elif self.isa == True:
-            self.isa = False
-            self.ser.write(b'b')
-#            print('b')
             
     def addMouse(self):
         """ This function sends the command 'c' to the arduino,
@@ -78,14 +63,6 @@ class Arduino():
         print(message)
         self.ser.flush()
         return message
-        
-    def troll(self, cancelled):
-        while not cancelled:
-            message = ''
-            message = self.ser.readline()[:-2]
-            message = str(message)
-            print(message)
-            return message
 
         
     def writePort(self, packet):

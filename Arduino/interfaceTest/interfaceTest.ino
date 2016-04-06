@@ -1,4 +1,4 @@
-li// Motor variables
+// Motor variables
 char msg;
 int rev = 48;   //Pin
 int m0 = 50;
@@ -94,6 +94,8 @@ void activatePistons() {
   digitalWrite(relay2, LOW);
   delay(40);                  // To make sure the 2nd valve closes before valve 1 opens
   digitalWrite(relay1, HIGH);
+  delay(1000);
+  digitalWrite(relay1, LOW);
 }
 
 // This function waits for and RFID tag to be scanned. It is made to add
@@ -189,6 +191,7 @@ void idMice() {
 // and trains the mouse according to those.
 void mouseReadyForTraining() {
   int code = Serial.parseInt();
+  boolean trainingSuccessful = true;
   if (code == 1) {        // The mouse can start its training
     releaseWaterV3(8);                    // Indicate number of droplets/increments
     if (Serial.available() > 0) {
@@ -221,11 +224,20 @@ void mouseReadyForTraining() {
                   return;
                 }*/
                 elapsedTime = millis() - timer;
+                if (Serial.available() > 0){ // to be able to read the emergency stop packet
+                  if (Serial.read() == 'Q'){
+                    trainingSuccessful = false;
+                    break;
+                  }
+                }
               }
               // The whole training was successful, motors are stopped and mouse is released
               setMotorSpeed(0);
+              delay(5000);
               releasePistons();
-              sendPacket("EOTS");                  // End of Training Successfull
+              if(trainingSuccessful == true)
+                sendPacket("EOTS");                  // End of Training Successfull
+              trainingSuccessful = true;
             }
           }
         }
