@@ -94,6 +94,8 @@ void activatePistons() {
   digitalWrite(relay2, LOW);
   delay(40);                  // To make sure the 2nd valve closes before valve 1 opens
   digitalWrite(relay1, HIGH);
+  delay(1000);
+  digitalWrite(relay1, LOW);
 }
 
 // This function waits for and RFID tag to be scanned. It is made to add
