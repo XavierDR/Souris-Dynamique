@@ -1,4 +1,4 @@
-li// Motor variables
+// Motor variables
 char msg;
 int rev = 48;   //Pin
 int m0 = 50;
@@ -191,6 +191,7 @@ void idMice() {
 // and trains the mouse according to those.
 void mouseReadyForTraining() {
   int code = Serial.parseInt();
+  boolean trainingSuccessful = true;
   if (code == 1) {        // The mouse can start its training
     releaseWaterV3(8);                    // Indicate number of droplets/increments
     if (Serial.available() > 0) {
@@ -223,11 +224,20 @@ void mouseReadyForTraining() {
                   return;
                 }*/
                 elapsedTime = millis() - timer;
+                if (Serial.available() > 0){ // to be able to read the emergency stop packet
+                  if (Serial.read() == 'Q'){
+                    trainingSuccessful = false;
+                    break;
+                  }
+                }
               }
               // The whole training was successful, motors are stopped and mouse is released
               setMotorSpeed(0);
+              delay(5000);
               releasePistons();
-              sendPacket("EOTS");                  // End of Training Successfull
+              if(trainingSuccessful == true)
+                sendPacket("EOTS");                  // End of Training Successfull
+              trainingSuccessful = true;
             }
           }
         }
